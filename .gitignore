@@ -1,0 +1,11 @@
+__pycache__
+__pycache__/
+_ST-P3/
+*.npy
+*.png
+*.pt
+*.ckpt
+.vscode/
+nuscenes/
+lightning_logs/
+bs/

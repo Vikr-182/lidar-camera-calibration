@@ -1,0 +1,181 @@
+
+"""
+if self.cfg.COMPARE_WITH_ORIG and images != None:
+    output_save = output # this is labels
+    labels_save = labels
+    labels_actual = output_save
+    if True:
+        print("starting forward")
+        self.model_orig.to(images.device)
+        output = self.model_orig(
+            images, intrinsics, extrinsics, future_egomotion,
+        )
+        print("forward done")
+
+        if self.cfg.PLANNING.GRU_ENABLED:
+            pl_loss, final_traj = self.model_orig.planning(
+                cam_front=output['cam_front'].detach(),
+                trajs=trajs[:, :, 1:],
+                gt_trajs=labels_actual['gt_trajectory'][:, 1:],
+                cost_volume=output['costvolume'][:, receptive_field:],
+                semantic_pred=occupancy,
+                hd_map=labels_actual['hdmap'],
+                commands=["A" for i in range(len(command))],
+                target_points=target_points
+            )
+        else:
+            pl_loss, final_traj = self.model_orig.planning(
+                trajs=trajs[:, :, 1:],
+                gt_trajs=labels_actual['gt_trajectory'][:, 1:],
+                cost_volume=output['costvolume'][:, receptive_field:],
+                semantic_pred=occupancy,
+                hd_map=labels_actual['hdmap'],
+                commands=["A" for i in range(len(command))],
+                target_points=target_points
+            )
+        print("done")
+        l2_gt = torch.sqrt(((final_traj[:, :, :2] - labels_actual['gt_trajectory'][:, 1:, :2]) ** 2).sum(dim=-1)).sum().detach().cpu().numpy();
+        output = {**output,
+                    'selected_traj': torch.cat([torch.zeros((B, 1, 3), device=final_traj.device), final_traj],
+                                                dim=1)}
+    print("forward done")
+    costvolumes = output['costvolume'].squeeze().detach().cpu().squeeze().numpy()
+    costvolume = output['costvolume'][:, n_present - 1].detach().cpu().squeeze().numpy()
+    selected_trajs = output['selected_traj'].detach().cpu().numpy()
+
+
+    """
+        plot output
+    """
+    showing_plot2_orig = costvolume
+    title_2_orig = 'Costvolume orig'
+
+    """
+        plot best 25% points
+    """
+    K = 0.25 # best 25% points
+    decay = 0.025 # best 25% points 
+    showing = torch.ones((200, 200, 3)).numpy()
+
+    colors = [
+        [255, 128, 0],
+        [255, 0, 0],
+        [0, 255, 0],
+        [148, 0, 211],
+        [0, 0, 240],
+        [0, 16, 61],
+    ]
+
+    for i in range(n_future):
+        cutoff_len = int(len(np.unique(costvolumes[i])) * (K - decay * i))
+        cutoff = np.unique(costvolumes[i])[cutoff_len]
+        whe = np.where(costvolumes[i] <= cutoff)
+        showing[whe[0], whe[1]] = np.array(colors[i])/255
+    showing_plot3_orig = showing
+
+    selected_trajs = output['selected_traj'].detach().cpu().numpy()
+    print(selected_trajs.shape)
+    selected_trajs[0, :, :1] = selected_trajs[0, :, :1] * -1
+    selected_trajs = (selected_trajs[0, :, :2] - bx) / dx
+    trajs_plot1_orig = selected_traj
+"""
+
+
+
+    def generate_centerlines(self, rec, map_name):
+        dx, bx, _ = gen_dx_bx(self.cfg.LIFT.X_BOUND, self.cfg.LIFT.Y_BOUND, self.cfg.LIFT.Z_BOUND)
+        stretch = [self.cfg.LIFT.X_BOUND[1], self.cfg.LIFT.Y_BOUND[1]]
+        dx, bx = dx[:2].numpy(), bx[:2].numpy()
+
+        egopose = self.nusc.get('ego_pose', self.nusc.get('sample_data', rec['data']['LIDAR_TOP'])['ego_pose_token'])
+        map_name = self.scene2map[self.nusc.get('scene', rec['scene_token'])['name']]
+
+        rot = Quaternion(egopose['rotation']).rotation_matrix
+        rot = np.arctan2(rot[1,0], rot[0,0]) # in radian
+        center = np.array([egopose['translation'][0], egopose['translation'][1], np.cos(rot), np.sin(rot)])
+
+        box_coords = (
+            center[0],
+            center[1],
+            stretch[0]*2,
+            stretch[1]*2
+        ) # (x_center, y_center, width, height)
+        canvas_size = (
+                int(self.cfg.LIFT.X_BOUND[1] * 2 / self.cfg.LIFT.X_BOUND[2]),
+                int(self.cfg.LIFT.Y_BOUND[1] * 2 / self.cfg.LIFT.Y_BOUND[2])
+        )
+
+        egopose = self.nusc.get('ego_pose', self.nusc.get('sample_data', rec['data']['LIDAR_TOP'])['ego_pose_token'])
+        x, y = egopose["translation"][0], egopose["translation"][1]
+        nusc_map = self.nusc_maps[map_name]
+        radius_init = 2
+        closest_lane = None
+        while closest_lane == None or len(closest_lane) < 5:
+            # keep increasing search space until lane is found
+            closest_lane = nusc_map.get_closest_lane(x, y, radius=radius_init)
+            radius_init *= 2
+        # print(closest_lane, "AAAAAAAAAAAAAAA")
+        candidates_future = dfs(nusc_map, closest_lane, dist=0, threshold=self.cfg.DATASET.THRESHOLD, resolution_meters=resolution_meters)
+        candidates_past = dfs_incoming(nusc_map, closest_lane, dist=0, threshold=self.cfg.DATASET.THRESHOLD, resolution_meters=resolution_meters)
+        lane_ids = []
+        for past_lane_seq in candidates_past:
+            for future_lane_seq in candidates_future:
+                lane_ids.append(past_lane_seq + future_lane_seq[1:])
+        lane_ids = remove_overlapping_lane_seq(lane_ids)
+        centerlines = []
+        for lane_id in lane_ids:
+            centerline = []
+            for lane in lane_id:
+                lane_record = nusc_map.get_arcline_path(lane)
+                cx = np.array(discretize_lane(lane_record, resolution_meters=resolution_meters))
+                centerline.extend(cx)
+            centerlines.append(np.array(centerline))
+        lanes = self.nusc_maps[map_name].get_records_in_radius(x, y, 2000, ['lane', 'lane_connector'])
+        lanes = lanes['lane'] + lanes['lane_connector']
+        discrete_points = self.nusc_maps[map_name].discretize_lanes(lanes, resolution_meters=resolution_meters)
+        lanes = []
+        for lane_id, points in discrete_points.items():
+            lanes.append(np.array(points)[:, :2])
+        
+        patch_box = box_coords
+        patch_angle = rot * 180 / np.pi
+
+        patch_x = patch_box[0]
+        patch_y = patch_box[1]
+
+        patch = get_patch_coord(patch_box, patch_angle)
+
+        line_list = []
+        for lane in centerlines:
+            line = LineString([(arr[0], arr[1]) for arr in lane[:, :2]])
+            c = lane[:, :2]
+            if not line.intersection(patch).is_empty:
+                new_line = line
+                new_line = affinity.rotate(new_line, -patch_angle, origin=(patch_x, patch_y), use_radians=False)
+                new_line = affinity.affine_transform(new_line,
+                                                        [1.0, 0.0, 0.0, 1.0, -patch_x, -patch_y])
+                line_list.append(new_line)
+        
+        local_box = (0.0, 0.0, patch_box[2], patch_box[3])
+        patch_x, patch_y, patch_h, patch_w = local_box
+
+        patch = get_patch_coord(local_box)
+
+        canvas_h = canvas_size[0]
+        canvas_w = canvas_size[1]
+        scale_height = canvas_h/patch_h
+        scale_width = canvas_w/patch_w
+
+        trans_x = -patch_x + patch_w / 2.0
+        trans_y = -patch_y + patch_h / 2.0
+
+        overall_lines = []
+        for line in line_list:
+            if not line.intersection(patch).is_empty:
+                new_line = line
+                new_line = affinity.affine_transform(new_line,
+                                                     [1.0, 0.0, 0.0, 1.0, trans_x, trans_y])
+                new_line = affinity.scale(new_line, xfact=scale_width, yfact=scale_height, origin=(0, 0))
+                overall_lines.append([list(new_line.coords)])
+
+        return overall_lines

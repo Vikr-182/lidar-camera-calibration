@@ -1,0 +1,53 @@
+Loaded pretrained weights for efficientnet-b4
+===========================================================================
+Layer (type:depth-idx)                             Param #
+===========================================================================
+├─STP3: 1-1                                        --
+|    └─Encoder: 2-1                                --
+|    |    └─EfficientNet: 3-1                      3,635,984
+|    |    └─DeepLabHead: 3-2                       365,600
+|    |    └─UpsamplingConcat: 3-3                  114,240
+|    |    └─DeepLabHead: 3-4                       365,600
+|    |    └─UpsamplingConcat: 3-5                  161,536
+|    └─TemporalModel: 2-2                          --
+|    |    └─DeepLabHead: 3-6                       476,992
+|    |    └─Sequential: 3-7                        98,473
+|    └─DistributionModule: 2-3                     --
+|    |    └─DistributionEncoder: 3-8               28,224
+|    |    └─Sequential: 3-9                        2,112
+|    └─FuturePrediction: 2-4                       --
+|    |    └─Dual_GRU: 3-10                         875,456
+|    |    └─Sequential: 3-11                       36,480
+|    |    └─ModuleList: 3-12                       450,944
+|    |    └─ModuleList: 3-13                       513,472
+|    └─Decoder: 2-5                                --
+|    |    └─Conv2d: 3-14                           200,704
+|    |    └─BatchNorm2d: 3-15                      128
+|    |    └─ReLU: 3-16                             --
+|    |    └─Sequential: 3-17                       147,968
+|    |    └─Sequential: 3-18                       525,568
+|    |    └─Sequential: 3-19                       2,099,712
+|    |    └─UpsamplingAdd: 3-20                    33,024
+|    |    └─UpsamplingAdd: 3-21                    8,320
+|    |    └─UpsamplingAdd: 3-22                    4,224
+|    |    └─Sequential: 3-23                       37,122
+|    |    └─Sequential: 3-24                       37,122
+|    |    └─Sequential: 3-25                       37,252
+|    |    └─Sequential: 3-26                       37,057
+|    └─Planning_WO_GRU: 2-6                        --
+|    |    └─Cost_Function: 3-27                    (30)
+├─ModuleDict: 1-2                                  --
+|    └─SegmentationLoss: 2-7                       --
+|    └─SegmentationLoss: 2-8                       --
+|    └─HDmapLoss: 2-9                              --
+├─IntersectionOverUnion: 1-3                       --
+├─IntersectionOverUnion: 1-4                       --
+├─ModuleList: 1-5                                  --
+|    └─IntersectionOverUnion: 2-10                 --
+|    └─IntersectionOverUnion: 2-11                 --
+├─PlanningMetric: 1-6                              (4)
+===========================================================================
+Total params: 10,293,348
+Trainable params: 10,293,314
+Non-trainable params: 34
+===========================================================================
