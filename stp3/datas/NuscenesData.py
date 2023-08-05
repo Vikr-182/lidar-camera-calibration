@@ -17,6 +17,7 @@ from nuscenes.nuscenes import NuScenes, NuScenesExplorer
 from nuscenes.can_bus.can_bus_api import NuScenesCanBus
 from nuscenes.utils.splits import create_splits_scenes
 from nuscenes.utils.data_classes import Box
+from nuscenes.lidarseg.lidarseg_utils import colormap_to_colors, plt_to_cv2, get_stats, get_labels_in_coloring, create_lidarseg_legend, paint_points_label
 from nuscenes.utils.geometry_utils import transform_matrix
 from nuscenes.eval.common.utils import quaternion_yaw
 from nuscenes.map_expansion.arcline_path_utils import discretize_lane, ArcLinePath
@@ -69,7 +70,7 @@ brdebug = False
 problem = OPTNode(t_fin=t_fin, num=num)
 
 def distance(x1, y1, z1, x2, y2, z2):
-    return ((x1 - x2) ** 2 + (y1 - y2) ** 2 + 0 * (z1 - z2) ** 2) ** ( 1 / 2)
+    return ((x1 - x2) ** 2 + (y1 - y2) ** 2 + 1 * (z1 - z2) ** 2) ** ( 1 / 2)
  
 # Function to calculate K closest points
 def kClosest(points, target, K):
@@ -294,24 +295,53 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             cs_record = self.nusc.get('calibrated_sensor', pointsensor['calibrated_sensor_token'])
             pc = LidarPointCloud.from_file(pcl_path)
 
-
             ### LIDAR TO EGO_{TL} TRANSLATION -> CONSTANT
             pc.rotate(Quaternion(cs_record['rotation']).rotation_matrix)
             pc.translate(np.array(cs_record['translation']))
+            
+            lidarseg_labels_filename = osp.join(self.nusc.dataroot, self.nusc.get("lidarseg", rec['data']['LIDAR_TOP'])['filename'])
+            points_label = np.fromfile(lidarseg_labels_filename, dtype=np.uint8)
+            pts = []
+            labels_allowed = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+            for ind, pt in enumerate(pc.points.T):
+                # print(pt, points_label[ind])
+                if points_label[ind] in labels_allowed:
+                    pts.append(pt)
+            import copy
+            carr = copy.deepcopy(pts)
+            # np.save("points.npy", np.array(pts).T)
+            # import pdb; pdb.set_trace()
 
             # Second step: transform from ego to the global frame.
-
             ### EGO_{TL} TO GLOBAL OF TIMESTEP
             poserecord = self.nusc.get('ego_pose', pointsensor['ego_pose_token'])
             pc.rotate(Quaternion(poserecord['rotation']).rotation_matrix)
             pc.translate(np.array(poserecord['translation']))
 
+            # import pdb; pdb.set_trace()
+
             # Third step: transform from global into the ego vehicle frame for the timestamp of the image.
             poserecord = self.nusc.get('ego_pose', camm['ego_pose_token'])
             pc.translate(-np.array(poserecord['translation']))
             pc.rotate(Quaternion(poserecord['rotation']).rotation_matrix.T)
+            
+            # arr = pc.points.T # (N, 3)
+            # arr_label = pvv # (N, 1)
+            # barr = labels_allowed # ()
+
+            # def check(a, b):
+            #     return a in b
+            
+            # check_fn = np.vectorize(check, excluded=['b'])
+
+            # output_pc = pc.points.T[np.where(check_fn(a=pvv, b=labels_allowed))]
 
             point_clouds.append(torch.tensor(np.array(pc.points)).unsqueeze(0).unsqueeze(0))
+            gt_from = 'lidarseg'
+            # sample_token = self.nusc.get('sample_data', pointsensor['sample_token'])['sample_token']
+            points_label = np.fromfile(lidarseg_labels_filename, dtype=np.uint8)
+            color_legend = colormap_to_colors(self.nusc.colormap, self.nusc.lidarseg_name2idx_mapping)
+            coloring = color_legend[points_label]  # Shape: [num_points, 4]
 
             xs = [60, 61, 61, 61, 61, 62, 62, 62, 62, 62, 62, 63, 63, 63, 63, 63, 63,
                 63, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 65, 65, 65, 65, 65, 65,
@@ -338,11 +368,49 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             if cam == "CAM_BACK":
                 ppcs = []
                 for num in range(len(xs)):
-                    target = np.array([(xs[num] - 100)/2, (ys[num] - 100)/2, 0])
-                    print(target)
-                    arr = np.array(kClosest(pc.points.T, target, 1))
+                    target = np.array([[(xs[num] - 100)/2, (ys[num] - 100)/2, 0, 0]])
+                    tc = LidarPointCloud(target.T)
+                    cs_record = self.nusc.get('calibrated_sensor', pointsensor['calibrated_sensor_token'])
+                    carr.append(tc.points.T[0])
+                    target = tc.points.T[0]
+                    pcc = LidarPointCloud.from_file(pcl_path)
+
+                    ### LIDAR TO EGO_{TL} TRANSLATION -> CONSTANT
+                    pcc.rotate(Quaternion(cs_record['rotation']).rotation_matrix)
+                    pcc.translate(np.array(cs_record['translation']))
+                    labels_allowed = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+                    result = []
+                    for ind, x in enumerate(pc.points.T):
+                        # if points_label[ind] in labels_allowed:
+                        if True:
+                            result.append(x)
+
+                    arr = np.array(kClosest(np.array(result), target, 10))
                     ppc = LidarPointCloud(arr.T)
                     ppcs.append(ppc)
+                np.save("points.npy", np.array(carr).T)
+
+            # np.save("grad_data/sample1.npy", pc.points)
+            lidarseg_labels_filename = osp.join(self.nusc.dataroot, self.nusc.get('lidarseg', rec['data']['LIDAR_TOP'])['filename'])
+            pvv = np.fromfile(lidarseg_labels_filename, dtype=np.uint8)
+            color_legend = colormap_to_colors(self.nusc.colormap, self.nusc.lidarseg_name2idx_mapping)
+            coloring = color_legend[pvv]  # Shape: [num_points, 4]
+            pvv = np.expand_dims(pvv, axis=1) # (N, 1)
+            # arr = []
+            # cc = []
+            # labels_allowed_seg = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+            # for ind in range(len(pc.points.T)):
+            #     if pvv[ind] in labels_allowed_seg:
+            #         arr.append(pc.points.T[ind])
+            #         cc.append(coloring[ind])
+
+            # np.save("points.npy", np.array(arr).T)
+            # np.save("coloring.npy", np.array(cc))
+
+            arr = np.concatenate((pc.points[:3].T, pvv), axis=1)
+            np.save("grad_data/sample1.npy", np.array(arr).T) # (4, N)
+            im.save(f"grad_data/{camm['channel']}.png")
+            # import pdb; pdb.set_trace()
 
             # Fourth step: transform from ego into the camera.
             cs_record = self.nusc.get('calibrated_sensor', camm['calibrated_sensor_token'])
@@ -366,12 +434,20 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             plt.imshow(im)
             plt.scatter(points[0, :], points[1, :], s=0.5)
             plt.savefig("ok.png", bbox_inches="tight")
-            import pdb; pdb.set_trace()
 
             plt.figure(figsize=(10, 5))
             plt.imshow(im)
             if cam == "CAM_BACK":
                 for ppc in ppcs:
+                    poserecord = self.nusc.get('ego_pose', pointsensor['ego_pose_token'])
+                    ppc.rotate(Quaternion(poserecord['rotation']).rotation_matrix)
+                    ppc.translate(np.array(poserecord['translation']))
+
+                    # Third step: transform from global into the ego vehicle frame for the timestamp of the image.
+                    poserecord = self.nusc.get('ego_pose', camm['ego_pose_token'])
+                    ppc.translate(-np.array(poserecord['translation']))
+                    ppc.rotate(Quaternion(poserecord['rotation']).rotation_matrix.T)
+
                     ppc.translate(-np.array(cs_record['translation']))
                     ppc.rotate(Quaternion(cs_record['rotation']).rotation_matrix.T)
                     ddepths_img = ppc.points[2, :]
@@ -391,8 +467,8 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
                     # depth_gt = np.zeros((im.size[0], im.size[1]))
                     # pts_int = np.array(points, dtype=int)
                     # depth_gt[pts_int[0,:], pts_int[1,:]] = ddepths_img
-            plt.savefig("selected.png", bbox_inches="tight")
-            plt.clf()
+                plt.savefig("selected.png", bbox_inches="tight")
+                plt.clf()
 
             # Transformation from world to egopose
             car_egopose = self.nusc.get('ego_pose', camera_sample['ego_pose_token'])
@@ -479,7 +555,9 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         egopose = self.nusc.get('ego_pose', self.nusc.get('sample_data', rec['data']['LIDAR_TOP'])['ego_pose_token'])
         trans = -np.array(egopose['translation'])
         yaw = Quaternion(egopose['rotation']).yaw_pitch_roll[0]
-        rot = Quaternion(scalar=np.cos(yaw / 2), vector=[0, 0, np.sin(yaw / 2)]).inverse
+        # rot = Quaternion(scalar=np.cos(yaw / 2), vector=[0, 0, np.sin(yaw / 2)])
+        rot = Quaternion(egopose['rotation']).inverse
+        # print(Quaternion(egopose['rotation']).inverse.rotation_matrix, Quaternion(scalar=np.cos(yaw / 2), vector=[0, 0, np.sin(yaw / 2)]).rotation_matrix)
         return trans, rot
 
     def get_depth_from_lidar(self, lidar_sample, cam_sample):
@@ -533,6 +611,7 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         box = Box(
             instance_annotation['translation'], instance_annotation['size'], Quaternion(instance_annotation['rotation'])
         )
+        # import pdb; pdb.set_trace()
         box.translate(ego_translation)
         box.rotate(ego_rotation)
 

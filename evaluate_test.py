@@ -48,9 +48,6 @@ t_fin = 3
 num = 61
 problem = OPTNode(t_fin=t_fin, num=num)
 
-def mouse_event(event):
-    print('x: {} and y: {}'.format(event.xdata, event.ydata))
-
 def eval(checkpoint_path, dataroot):
     # save_path = mk_save_dir()
     trainer = TrainingModule.load_from_checkpoint(checkpoint_path, strict=True)
@@ -81,80 +78,36 @@ def eval(checkpoint_path, dataroot):
     n_future = cfg.N_FUTURE_FRAMES
 
     dataroot = cfg.DATASET.DATAROOT
-    nworkers = cfg.N_WORKERS
     nusc = NuScenes(version='v1.0-{}'.format("mini"), dataroot=dataroot, verbose=False)
-    cfg.TIME_RECEPTIVE_FIELD = 1
     valdata = FuturePredictionDataset(nusc, 1, cfg)
     valloader = torch.utils.data.DataLoader(
-        valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
+        valdata, batch_size=cfg.BATCHSIZE, shuffle=True, num_workers=0, pin_memory=True, drop_last=False
     )
 
-    plt.rcParams["figure.figsize"] = [7.00, 3.50]
-    plt.rcParams["figure.autolayout"] = True
     for index, batch in enumerate(tqdm(valloader)):
         preprocess_batch(batch, device)
         image = batch['image']
         intrinsics = batch['intrinsics']
         extrinsics = batch['extrinsics']
         future_egomotion = batch['future_egomotion']
-        command = batch['command']
-        trajs = batch['sample_trajectory']
-        target_points = batch['target_point']
-        if cfg.PLANNING.DENSE:
-            centerlines = batch['centerlines']
         labels = trainer.prepare_future_labels(batch)
-        n_present = model.receptive_field
         trj = labels['gt_trajectory_prev'] # (B, 1, 9, 2)
-        traj_past = trj[:, :3, :2]
-        traj_future = trj[:, 3:, :2]
-        # if index % 100 == 0:
-        #     save(output, labels, batch, n_present, index, save_path)
 
-        unn = batch["unnormalized_images"][0].squeeze()[0]
+        with torch.no_grad():
+            output = model(
+                image, intrinsics, extrinsics, future_egomotion
+            )
+            # breakpoint()
+            print(output.keys())
 
-        arr = np.zeros((200, 200, 3))
-        whe = np.where(batch['hdmap'].squeeze()[2,1] > 0)
-        arr[whe[0], whe[1]] = np.array([255,255,255])
-        # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
-        # arr[whe[0], whe[1]] = np.array([255,255,0])
-        whe = np.where(batch['segmentation'].squeeze()[2] > 0)
-        arr[whe[0], whe[1]] = np.array([0,0,255])
-        np.save("grad_data2/arr.npy", arr)
-        np.save("grad_data2/unn.npy", batch["unnormalized_images"].squeeze())
-        np.save("grad_data2/rotations.npy", batch["rotations"].squeeze())
-        np.save("grad_data2/translations.npy", batch["translations"].squeeze())
-        np.save("grad_data2/camera_intrinsics.npy", batch["camera_intrinsics"].squeeze())
-        np.save("grad_data2/point_clouds.npy", batch["point_clouds"][-1].squeeze())
-        Image.fromarray(arr.astype(np.uint8)).save("grad_data/sample_bev.png")
+        seg_prediction = output['segmentation'].detach()
+        seg_prediction = torch.argmax(seg_prediction, dim=2, keepdim=True)
+        pred = seg_prediction.squeeze()
         import pdb; pdb.set_trace()
 
-    results = {}
 
-    scores = metric_vehicle_val.compute()
-    results['vehicle_iou'] = scores[1]
-
-    if cfg.SEMANTIC_SEG.PEDESTRIAN.ENABLED:
-        scores = metric_pedestrian_val.compute()
-        results['pedestrian_iou'] = scores[1]
-
-    if cfg.SEMANTIC_SEG.HDMAP.ENABLED:
-        for i, name in enumerate(hdmap_class):
-            scores = metric_hdmap_val[i].compute()
-            results[name + '_iou'] = scores[1]
-
-    if cfg.INSTANCE_SEG.ENABLED:
-        scores = metric_panoptic_val.compute()
-        for key, value in scores.items():
-            results['vehicle_'+key] = value[1]
-
-    if cfg.PLANNING.ENABLED:
-        for i in range(future_second):
-            scores = metric_planning_val[i].compute()
-            for key, value in scores.items():
-                results['plan_'+key+'_{}s'.format(i+1)]=value.mean()
-
-    for key, value in results.items():
-        print(f'{key} : {value.item()}')
+        # if index % 100 == 0:
+        #     save(output, labels, batch, n_present, index, save_path)
 
 def save(output, labels, batch, n_present, frame, save_path):
     hdmap = output['hdmap'].detach()
