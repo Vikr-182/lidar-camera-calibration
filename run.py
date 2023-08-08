@@ -86,7 +86,7 @@ def eval(checkpoint_path, dataroot):
     cfg.TIME_RECEPTIVE_FIELD = 1
     valdata = FuturePredictionDataset(nusc, 1, cfg)
     valloader = torch.utils.data.DataLoader(
-        valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
+        valdata, batch_size=cfg.BATCHSIZE, shuffle=True, num_workers=0, pin_memory=True, drop_last=False
     )
 
     plt.rcParams["figure.figsize"] = [7.00, 3.50]

@@ -9,3 +9,4 @@ _ST-P3/
 nuscenes/
 lightning_logs/
 bs/
+*.zip

@@ -79,7 +79,7 @@ def eval(checkpoint_path, dataroot):
 
     dataroot = cfg.DATASET.DATAROOT
     nusc = NuScenes(version='v1.0-{}'.format("mini"), dataroot=dataroot, verbose=False)
-    valdata = FuturePredictionDataset(nusc, 1, cfg)
+    valdata = FuturePredictionDataset(nusc, 0, cfg)
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=True, num_workers=0, pin_memory=True, drop_last=False
     )
@@ -103,8 +103,24 @@ def eval(checkpoint_path, dataroot):
         seg_prediction = output['segmentation'].detach()
         seg_prediction = torch.argmax(seg_prediction, dim=2, keepdim=True)
         pred = seg_prediction.squeeze()
-        import pdb; pdb.set_trace()
+        arr = np.zeros((200, 200, 3))
+        whe = np.where(batch['hdmap'].squeeze()[2,1] > 0)
+        arr[whe[0], whe[1]] = np.array([255,255,255])
+        whe = np.where(torch.argmax(output['hdmap'].squeeze()[2:4], dim=0, keepdim=True)[0] > 0)
+        arr[whe[0], whe[1]] = np.array([255,255,255])
+        whe = np.where(pred.squeeze()[2] > 0)
+        arr[whe[0], whe[1]] = np.array([0,0,255])
+        Image.fromarray(arr.astype(np.uint8)).save("grad_data/pred_bev.png")        
 
+        arr = np.zeros((200, 200, 3))
+        whe = np.where(batch['hdmap'].squeeze()[2,1] > 0)
+        arr[whe[0], whe[1]] = np.array([255,255,255])
+        # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
+        # arr[whe[0], whe[1]] = np.array([255,255,0])
+        whe = np.where(batch['segmentation'].squeeze()[2] > 0)
+        arr[whe[0], whe[1]] = np.array([0,0,255])
+        Image.fromarray(arr.astype(np.uint8)).save("grad_data/sample_bev.png")
+        import pdb; pdb.set_trace()
 
         # if index % 100 == 0:
         #     save(output, labels, batch, n_present, index, save_path)

@@ -396,16 +396,16 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             color_legend = colormap_to_colors(self.nusc.colormap, self.nusc.lidarseg_name2idx_mapping)
             coloring = color_legend[pvv]  # Shape: [num_points, 4]
             pvv = np.expand_dims(pvv, axis=1) # (N, 1)
-            # arr = []
-            # cc = []
-            # labels_allowed_seg = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-            # for ind in range(len(pc.points.T)):
-            #     if pvv[ind] in labels_allowed_seg:
-            #         arr.append(pc.points.T[ind])
-            #         cc.append(coloring[ind])
+            arr = []
+            cc = []
+            labels_allowed_seg = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+            for ind in range(len(pc.points.T)):
+                if pvv[ind] in labels_allowed_seg:
+                    arr.append(pc.points.T[ind])
+                    cc.append(coloring[ind])
 
-            # np.save("points.npy", np.array(arr).T)
-            # np.save("coloring.npy", np.array(cc))
+            np.save("points.npy", np.array(arr).T)
+            np.save("coloring.npy", np.array(cc))
 
             arr = np.concatenate((pc.points[:3].T, pvv), axis=1)
             np.save("grad_data/sample1.npy", np.array(arr).T) # (4, N)
