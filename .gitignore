@@ -10,3 +10,4 @@ nuscenes/
 lightning_logs/
 bs/
 *.zip
+*.mp4
