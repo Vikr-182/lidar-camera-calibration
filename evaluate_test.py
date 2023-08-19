@@ -49,6 +49,9 @@ t_fin = 3
 num = 61
 problem = OPTNode(t_fin=t_fin, num=num)
 
+data_path = "/raid/t1/scratch/vikrant.dewangan/v1.0-trainval"
+save_path = "/raid/t1/scratch/vikrant.dewangan/datas"
+
 def eval(checkpoint_path, dataroot):
     # save_path = mk_save_dir()
     trainer = TrainingModule.load_from_checkpoint(checkpoint_path, strict=True)
@@ -57,7 +60,7 @@ def eval(checkpoint_path, dataroot):
     print(f'Loaded weights from \n {checkpoint_path}')
     trainer.eval()
 
-    device = torch.device('cpu')
+    device = torch.device('cuda:0')
     trainer.to(device)
     model = trainer.model
 
@@ -78,55 +81,54 @@ def eval(checkpoint_path, dataroot):
     n_present = cfg.TIME_RECEPTIVE_FIELD
     n_future = cfg.N_FUTURE_FRAMES
 
-    dataroot = cfg.DATASET.DATAROOT
+    dataroot = data_path#cfg.DATASET.DATAROOT
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=dataroot, verbose=False)
     valdata = FuturePredictionDataset(nusc, 0, cfg)
     valloader = torch.utils.data.DataLoader(
-        valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
+        valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=10, pin_memory=True, drop_last=False
     )
 
+    model = torch.nn.DataParallel(model, device_ids=[0])
+
     for index, batch in enumerate(tqdm(valloader)):
+        image = batch['image']
+        intrinsics = batch['intrinsics']
+        extrinsics = batch['extrinsics']
+        future_egomotion = batch['future_egomotion']
 
-        # print(index)
+        cam_names = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT", "CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
+        old_arr = np.zeros((200, 200, 3))
+        with torch.no_grad():
+            output = model(
+                image, intrinsics, extrinsics, future_egomotion
+            )
+            os.makedirs(os.path.join(save_path, str(index)), exist_ok=True)
+            for idx in range(6):
+                img = batch['unnormalized_images'][0,2,idx].numpy().astype(np.uint8)
+                Image.fromarray(img).save(os.path.join(save_path, str(index), cam_names[idx] + ".png"))
+            arr = np.zeros((200, 200, 3))
+            whe = np.where(batch['hdmap'].squeeze()[2,1] > 0)
+            arr[whe[0], whe[1]] = np.array([255,255,255])
+            # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
+            # arr[whe[0], whe[1]] = np.array([255,255,0])
+            whe = np.where(batch['segmentation'].squeeze()[2] > 0)
+            arr[whe[0], whe[1]] = np.array([0,0,255])
+            Image.fromarray(arr.astype(np.uint8)).save(os.path.join(save_path, str(index), "gt_bev.png"))
 
-        fig = plt.figure(figsize=(10, 3))
+            pred = torch.argmax(output['segmentation'], dim=2).squeeze()[2].cpu().numpy()
+            arr = np.zeros((200, 200, 3))
+            whe = np.where(batch['hdmap'].squeeze()[2,1] > 0)
+            arr[whe[0], whe[1]] = np.array([255,255,255])
+            # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
+            # arr[whe[0], whe[1]] = np.array([255,255,0])
+            whe = np.where(pred > 0)
+            arr[whe[0], whe[1]] = np.array([0,0,255])
+            Image.fromarray(arr.astype(np.uint8)).save(os.path.join(save_path, str(index), "pred_bev.png"))
 
-        gs = gridspec.GridSpec(6, 24)
+            print(np.linalg.norm(arr - old_arr))
 
-        ax0 = plt.subplot(gs[0:3, 0:6])
-        ax0.imshow(batch['unnormalized_images'][0,2,0].numpy())
-        ax0.axis('off')
-
-        ax1 = plt.subplot(gs[0:3, 6:12])
-        ax1.imshow(batch['unnormalized_images'][0,2,1].numpy())
-        ax1.axis('off')
-
-        ax2 = plt.subplot(gs[0:3, 12:18])
-        ax2.imshow(batch['unnormalized_images'][0,2,2].numpy())
-        ax2.axis('off')
-
-        ax3 = plt.subplot(gs[3:6, 0:6])
-        ax3.imshow(batch['unnormalized_images'][0,2,3].numpy())
-        ax3.axis('off')
-
-        ax4 = plt.subplot(gs[3:6, 6:12])
-        ax4.imshow(batch['unnormalized_images'][0,2,4].numpy())
-        ax4.axis('off')
-
-        ax5 = plt.subplot(gs[3:6, 12:18])
-        ax5.imshow(batch['unnormalized_images'][0,2,5].numpy())
-        ax5.axis('off')
-
-        ax6 = plt.subplot(gs[0:6, 18:24])
-        ax6.imshow(batch['segmentation'][0,2,0].numpy(), cmap='gray')
-        ax6.axis('off')
-
-        plt.tight_layout()
-        plt.text(200, 250, "{0:0=6d}".format(index), fontsize=12)
-
-        plt.savefig('sample_cam_imgs/'+"{0:0=6d}".format(index)+'.png', dpi=300)
-
-
+            np.save(os.path.join(save_path, str(index), "points.npy"), batch['point_clouds'][2].squeeze()[0]) # 4, N
+            np.save(os.path.join(save_path, str(index), "coloring.npy"), batch['point_clouds_labels'][2].squeeze()[0]) # N
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='STP3 evaluation')

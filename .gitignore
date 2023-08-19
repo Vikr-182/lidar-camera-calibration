@@ -11,3 +11,16 @@ lightning_logs/
 bs/
 *.zip
 *.mp4
+llava/
+minigpt4/
+nuscenes/
+*.swo
+*.swp
+prerained_minigpt4_7b.pth
+0*_*/
+centernet/
+detectron2/
+grit/
+models/
+sample_cam_imgs/
+0/
