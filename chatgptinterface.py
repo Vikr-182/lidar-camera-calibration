@@ -1,10 +1,18 @@
 import os
 import openai
 
+example = "Here is an example\
+    What is our planet's name?\
+        A. Earth\
+        B. Sun\
+        C. Mars\
+        D. Jupyter\
+        \n\n \
+        Answer: A. Earth"
+
 scene_data_format = {
-	"object_id": "a unique object id",
+	"object_id": "a object id of the object",
 	"bev_centroid": "2D coordinates of the center of the object",
-	"bev_area": "Size of the 2D object",    
 	"llm_message": "a brief caption for the object"
 }
 
@@ -39,13 +47,13 @@ def add_question_context(question_type):
         return ""
 
 def setup_question_generation(question_type):
-    message = f"You will be given, as input a 2D road scene in Bird's Eye View, as a list. The ego-vehicle is at (0,0) facing along the positive Y-axis. Each entry in the list describes one object in the scene, with the following five fields: \
+    message = f"You will be given, as input a 2D road scene in Bird's Eye View, as a list. The ego-vehicle is at (100, 100) facing along the positive Y-axis. Each entry in the list describes one object in the scene, with the following five fields: \
                     \n\n {str(scene_data_format)}  \n\n  \
-                Once you have parsed the JSON and are ready to generate question about the scene, Create a multi-choice question about the image, and provide the choices and answer. Each question should have 4 options, out of which only 1 should be correct."
+                Once you have parsed the JSON and are ready to generate question about the scene, Create a multi-choice question about the scene, and provide the choices and answer. Each question should have 4 options, out of which only 1 should be correct."
     message += add_question_context(question_type)
     return {
         "role": "system",
-        "content": message
+        "content": message  + "\n" + str(example) + "\n . NOTE: DO NOT ask simple questions like 'What is the central object in the scene?'."
     }
 
 def add_conversation_context(conversation_type):
@@ -84,8 +92,8 @@ class ChatGPTInteface:
         response = openai.ChatCompletion.create(
             model=self.model_name,
             messages=[
-                system_message,
-                user_message
+                system_message, # prompt template
+                user_message # data
             ],
             temperature=0,
             max_tokens=1024

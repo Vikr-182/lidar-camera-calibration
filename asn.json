@@ -1,0 +1,82 @@
+[
+    {
+        "object_id": 1,
+        "bev_centroid": [
+            -22.5,
+            3.0
+        ],
+        "llm_message": "the car is parked on the side of the road facing away from the viewer\nThe image features a black car parked on the side of the road, facing away from the viewer. It appears to be a small car, possibly a compact sedan or hatchback. The car is parked with its front facing the viewer, giving a clear view of its front end. There is a cloud in the sky above the car, adding a touch of natural beauty to the scene. The overall setting appears to be outdoors, with the car parked on the side of a road.\nIn the image, there are two license plates visible. One is on the front of the car, and the other is on"
+    },
+    {
+        "object_id": 3,
+        "bev_centroid": [
+            -7.5,
+            3.0
+        ],
+        "llm_message": "the car is parked on the side of the road with a dark background behind it\nThe image features a white car parked on the side of the road, with a dark background behind it. The car is a Volkswagen Jetta, which is a popular model in the Volkswagen lineup. In the image, the car appears to be parked in a residential area, possibly in a driveway or on the street. There is no other visible activity or objects in the scene, just the car and the dark background. The Volkswagen Jetta is a well-known and popular vehicle, and its presence in the image adds to the overall aesthetic of the scene.\nThe car is parked on the side"
+    },
+    {
+        "object_id": 4,
+        "bev_centroid": [
+            -5.0,
+            -0.5
+        ],
+        "llm_message": "a toyota highlander parked on the side of the road under a cloudy sky\nThe image features a black Toyota Highlander parked on the side of the road under a cloudy sky. The car is parked with its front facing the viewer and appears to be in good condition. There are no other vehicles or people visible in the scene. The car is the central object in the image. The cloudy sky provides an interesting contrast to the sleek and modern appearance of the Toyota Highlander.\nAs the car is parked on the side of the road, it is possible that it has been left there temporarily, waiting for its owner to return or for someone to pick it up"
+    },
+    {
+        "object_id": 5,
+        "bev_centroid": [
+            -1.5,
+            3.5
+        ],
+        "llm_message": "a car parked on the side of the road with its headlights on\nThe image features a black car parked on the side of the road, with its headlights illuminating the area around it. The car appears to be a small SUV or crossover vehicle. There are no other vehicles or people visible in the scene. The car is parked on the side of the road, facing in the same direction as the other vehicles on the road. In the foreground, there is a stop sign, indicating that the car has come to a stop at the intersection. The stop sign is positioned close to the car, indicating that the driver has stopped at the appropriate location. Overall, the scene"
+    },
+    {
+        "object_id": 6,
+        "bev_centroid": [
+            -113.5,
+            11.0
+        ],
+        "llm_message": "a semi-trailer tractor trailer truck\nThe image features a large white semi-trailer tractor trailer truck parked on a black background. The truck has a white color and appears to be well-maintained. It is parked in a still position, likely waiting to be loaded or unloaded. The trailer section of the truck is visible and appears to be in good condition. There are no other vehicles or people visible in the scene. The truck is the central object in the image.\nThe truck's size and appearance suggest that it may be used for transporting goods over long distances, possibly as part of a shipping or logistics operation. The white color"
+    },
+    {
+        "object_id": 7,
+        "bev_centroid": [
+            -108.5,
+            -41.5
+        ],
+        "llm_message": "the car png 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+        "object_id": 8,
+        "bev_centroid": [
+            -109.0,
+            -34.0
+        ],
+        "llm_message": "the central object in the scene is a bus png image, 10000 px by 10000 px\nThe image features a bus, which is a type of public transportation commonly used for transporting people from one place to another. The bus is designed to carry a large number of passengers and can be found in many cities and towns around the world. In the image, the bus appears to be parked or stopped in a dark area, possibly waiting for passengers to board or disembark.\nThe bus is a significant mode of transportation for many people, as it provides a convenient and cost-effective way to travel to various destinations. It is also an important part of"
+    },
+    {
+        "object_id": 9,
+        "bev_centroid": [
+            -100.0,
+            -6.5
+        ],
+        "llm_message": "the car is parked on the side of the road png, 10000x8000, free transparent, free png images on pngtree\nThe image features a small gray car parked on the side of the road against a black background. The car appears to be a Toyota Corolla Altis, which is a popular sedan model in India. The car is parked with its front facing the camera, giving a clear view of its front end. The black background provides a clean and professional look to the image.\nThe car's presence in the scene suggests that it may have been parked in a public area, such as a parking lot or on the street. The"
+    },
+    {
+        "object_id": 10,
+        "bev_centroid": [
+            -95.0,
+            10.5
+        ],
+        "llm_message": "the car is parked on the side of the road png, 1280x720\n The image features a silver car parked on the side of the road, with a black background. The car appears to be a Toyota Corolla Altis, which is a popular sedan model in India. In the image, the car is parked with its front facing the viewer, giving a clear view of its exterior features. The car's headlights, grille, and other details are visible, making it easy to identify. The black background helps to draw attention to the car and highlight its appearance. Overall, the image provides a clear view of the Toyota Corolla Altis"
+    },
+    {
+        "object_id": 11,
+        "bev_centroid": [
+            -50.0,
+            -50.0
+        ],
+        "llm_message": "a toyota highlander parked on the side of the road under a cloudy sky\nThe image features a black Toyota Highlander parked on the side of the road under a cloudy sky. The car is parked with its front facing the viewer. There are no other vehicles or people visible in the scene. The image provides a clear view of the front of the Toyota Highlander. The car's license plate is visible, making it easy to identify the vehicle. The cloudy sky adds a dramatic effect to the scene, making it appear somewhat mysterious or ominous. Overall, the image captures a solitary Toyota Highlander parked on the side of"
+    }
+]

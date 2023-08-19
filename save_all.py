@@ -66,8 +66,23 @@ from minigpt4.processors import *
 from minigpt4.runners import *
 from minigpt4.tasks import *
 
+from lavis.models import load_model_and_preprocess
+
 from nuscenes.utils.data_classes import PointCloud, LidarPointCloud, RadarPointCloud, Box
 from nuscenes.utils.geometry_utils import view_points, box_in_image, BoxVisibility, transform_matrix
+
+# ========================================
+#             InsructBLIP-2 Model Initialization
+# ========================================
+def init_instructblip2(model_name = "blip2_vicuna_instruct", device="cuda:0"):
+    model, vis_processors, _ = load_model_and_preprocess(
+        name=model_name,
+        model_type="vicuna7b",
+        is_eval=True,
+        device=device,
+    )
+    return model, vis_processors
+# ========================================
 
 # ========================================
 #             LLaVa Model Initialization
@@ -140,7 +155,7 @@ def reset_conv(model_name = "llava"):
 
 def llava_inference(image_processor, tokenizer, conv, user_message, image, device="cuda"):
   image_tensor = image_processor.preprocess(image, return_tensors='pt')['pixel_values'].half().to(device)
-  if model.config.mm_use_im_start_end:
+  if model_llava.config.mm_use_im_start_end:
       inp = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + '\n' + user_message
   else:
       inp = DEFAULT_IMAGE_TOKEN + '\n' + user_message
@@ -151,7 +166,7 @@ def llava_inference(image_processor, tokenizer, conv, user_message, image, devic
   keywords = [stop_str]
   stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
   streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
-  output_ids = model.generate(
+  output_ids = model_llava.generate(
       input_ids,
       images=image_tensor,
       do_sample=True,
@@ -184,6 +199,27 @@ def miniGPT4_inference(chat, img_cropped, user_message):
     )[0]
     return llm_message
 
+def instructblip2_inference(img_cropped, vis_processors, device="cuda", user_message="describe the central object in the scene."):
+    image = vis_processors["eval"](Image.fromarray(img_cropped)).unsqueeze(0).to(device)
+
+    samples = {
+        "image": image,
+        "prompt": user_message,
+    }
+
+    output_blip = model_instructblip.generate(
+        samples,
+        length_penalty=float(1),
+        repetition_penalty=float(1),
+        num_beams=5,
+        max_length=150,
+        min_length=1,
+        top_p=0.2,
+        use_nucleus_sampling=False,
+    )
+
+    return output_blip[0]
+
 def find_bounding_box(image):
     # Find the coordinates of non-zero (foreground) pixels along each channel
     foreground_pixels = np.array(np.where(np.any(image != 0, axis=2)))
@@ -194,8 +230,21 @@ def find_bounding_box(image):
 
     return min_y, min_x, max_y, max_x
 
-def crop_around_bounding_box(image):
-    min_y, min_x, max_y, max_x = find_bounding_box(image)
+def find_bounding_box_masks(image):
+    # Find the coordinates of non-zero (foreground) pixels along each channel
+    foreground_pixels = np.array(np.where(image != 0))
+
+    # Calculate the bounding box coordinates
+    min_y, min_x = np.min(foreground_pixels, axis=1)
+    max_y, max_x = np.max(foreground_pixels, axis=1)
+
+    return min_y, min_x, max_y, max_x
+
+def crop_around_bounding_box(image, masks, get_black=False):
+    if get_black:
+        min_y, min_x, max_y, max_x = find_bounding_box(masks)
+    else:
+        min_y, min_x, max_y, max_x = find_bounding_box_masks(masks)
 
     # Crop the image using the bounding box coordinates
     cropped_image = image[min_y:max_y+1, min_x:max_x+1, :]
@@ -293,30 +342,28 @@ def get_image_projection(predictor, cam_left, cam_front, cam_right, cam_rear_lef
     masks, scores, logits = predictor.predict(point_coords=input_point,point_labels=input_label,multimask_output=True)
     idxs = (masks[-1].astype(np.uint8) * 200) > 0
     img_copy = np.copy(cam_img)
-    img_copy[~idxs] = 0
-    img_copy = crop_around_bounding_box(img_copy)
+    # img_copy[~idxs] = 0
+    img_copy = crop_around_bounding_box(img_copy, masks[-1])
     return img_copy, matched_points, matched_cam
 
 device = torch.device('cuda:0')
+device2 = torch.device('cuda:0')
 to_visualize = True
 compute_losses = False
 
-font = {'weight' : 'bold',
-        'size'   : 35}
-mpl.rc('font', **font)                            
-colors_seq = [
-    [255, 0 , 0],
-    [255, 0 , 0],
-    [255, 127, 0],
-    [255, 255, 0],
-    [0, 255, 0],                                
-    [148, 0, 211],
-]
-
 data_path = "/raid/t1/scratch/vikrant.dewangan/v1.0-trainval"
 save_path = "/raid/t1/scratch/vikrant.dewangan/datas"
-tokenizer, model, image_processor, context_len = init_llava()
+
+# LLaVa
+tokenizer, model_llava, image_processor, context_len = init_llava()
+print("Initializaed LLaVa")
+
+# InstructBLIP-2
+model_instructblip, vis_processors = init_instructblip2(device=device2)
+print("Initializaed Instruct-BLIP2")
+
 predictor = init_sam(device=device)
+print("Initializaed SAM")
 print('Initialization Finished')
 
 def eval(checkpoint_path, dataroot):
@@ -429,12 +476,19 @@ def eval(checkpoint_path, dataroot):
                     if dist < min_ann_dist:
                         min_ann_dist = dist
                         best_ann = annotation
-                import pdb;pdb.set_trace()
                 keys = best_ann.keys()
                 for key in keys:
+                    if type(best_ann[key]) == torch.Tensor:
+                        best_ann[key] = best_ann[key].tolist()
+                        continue
                     for itemind, item in enumerate(best_ann[key]):
                         if type(item) == torch.Tensor:
                             best_ann[key][itemind] = item.tolist()
+                        elif type(item) == list:
+                            for listind in range(len(item)):
+                                if type(item[listind]) == torch.Tensor:
+                                    best_ann[key][itemind][listind] = best_ann[key][itemind][listind].tolist()
+
                 obj["annotation"] = best_ann
                 import time
                 start_time = time.time()
@@ -453,18 +507,20 @@ def eval(checkpoint_path, dataroot):
                                                                                batch['unnormalized_images'][0,2,4].numpy(), 
                                                                                batch['unnormalized_images'][0,2,5].numpy(), arr);
                 matched_imgs.append(img_cropped)
-                print('time taken, for image_projection + SAM:', time.time() - start_time);
+                # print('time taken, for image_projection + SAM:', time.time() - start_time);
                 start_time = time.time()
 
-                user_message = "Given this image is of road scene, describe the central object in the image. Is there anything unusual about this image?"
+                user_message = "Given this image is of road scene, describe the central object in the image."
                 # llm_message = miniGPT4_inference(chat, img_cropped, user_message);
+                llm_message = instructblip2_inference(img_cropped, vis_processors, device2)
+                # print(llm_message)
 
-                conv = reset_conv()
-                llm_message = llava_inference(image_processor, tokenizer, conv, user_message, img_cropped, device);
+                # conv = reset_conv()
+                # llm_message = llava_inference(image_processor, tokenizer, conv, user_message, img_cropped, device);
 
-                print('Answering done')
+                # print('Answering done')
 
-                print('time taken, for LLaVa:', time.time() - start_time);
+                # print('time taken, for LLaVa:', time.time() - start_time);
 
                 obj['llm_message'] = llm_message
                 objects_json.append(obj)
@@ -485,6 +541,8 @@ def eval(checkpoint_path, dataroot):
             arr[whe[0], whe[1]] = np.array([0,0,255])
             Image.fromarray(arr.astype(np.uint8)).save(os.path.join(save_path, str(cur_scene_token[0]) + "_" + "{0:0=6d}".format(index), "pred_bev.png"))
             barr = np.copy(arr)
+
+            # print("\n\n\n\n\n")
 
             labels_allowed = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
             pts = []
@@ -526,18 +584,18 @@ def eval(checkpoint_path, dataroot):
                                                                                batch['unnormalized_images'][0,2,3].numpy(), 
                                                                                batch['unnormalized_images'][0,2,4].numpy(), 
                                                                                batch['unnormalized_images'][0,2,5].numpy(), arr);
-                print('time taken, for image_projection + SAM:', time.time() - start_time);
+                # print('time taken, for image_projection + SAM:', time.time() - start_time);
                 start_time = time.time()
 
-                user_message = "Given this image is of road scene, describe the central object in the image."
+                user_message = "Given this image is of road scene, give detailed description of the central object in the image."
                 # llm_message = miniGPT4_inference(chat, img_cropped, user_message);
 
                 conv = reset_conv();
                 llm_message = llava_inference(image_processor, tokenizer, conv, user_message, img_cropped, device);
 
-                print('Answering done')
+                # print('Answering done')
 
-                print('time taken, for LLaVa:', time.time() - start_time);
+                # print('time taken, for LLaVa:', time.time() - start_time);
 
                 obj['llm_message'] = llm_message
                 objects_json.append(obj)
