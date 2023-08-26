@@ -99,9 +99,9 @@ def eval(checkpoint_path, dataroot):
                     scene_cnt = 0
         prev_scene_token = cur_scene_token
 
-        fig = plt.figure(figsize=(10, 3))
+        fig = plt.figure(figsize=(7, 3))
 
-        gs = gridspec.GridSpec(6, 24)
+        gs = gridspec.GridSpec(6, 18)
 
         ax0 = plt.subplot(gs[0:3, 0:6])
         ax0.imshow(batch['unnormalized_images'][0,2,0].numpy())
@@ -127,12 +127,7 @@ def eval(checkpoint_path, dataroot):
         ax5.imshow(batch['unnormalized_images'][0,2,5].numpy())
         ax5.axis('off')
 
-        ax6 = plt.subplot(gs[0:6, 18:24])
-        ax6.imshow(batch['segmentation'][0,2,0].numpy(), cmap='gray')
-        ax6.axis('off')
-
         plt.tight_layout()
-        plt.text(200, 250, "{0:0=6d}".format(index), fontsize=12)
 
         plt.savefig('sample_cam_imgs/'+"{0:0=6d}".format(index)+'.png', dpi=300)
 

@@ -22,8 +22,7 @@ WINDOW_NAME = "GRiT"
 
 def setup_cfg(args):
     cfg = get_cfg()
-    if args.cpu:
-        cfg.MODEL.DEVICE="cpu"
+    cfg.MODEL.DEVICE="cuda:0"
     add_centernet_config(cfg)
     add_grit_config(cfg)
     cfg.merge_from_file(args.config_file)
@@ -89,8 +88,6 @@ if __name__ == "__main__":
     setup_logger(name="fvcore")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
-
-    print(args.opts)
 
     cfg = setup_cfg(args)
 

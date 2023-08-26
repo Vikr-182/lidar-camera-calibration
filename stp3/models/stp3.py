@@ -189,7 +189,7 @@ class STP3(nn.Module):
         rotation, translation = extrinsics[..., :3, :3], extrinsics[..., :3, 3]
         B, N, _ = translation.shape
         # Add batch, camera dimension, and a dummy dimension at the end
-        points = self.frustum.unsqueeze(0).unsqueeze(0).unsqueeze(-1)
+        points = self.frustum.unsqueeze(0).unsqueeze(0).unsqueeze(-1).to(intrinsics.device)
 
         # Camera to ego reference frame
         points = torch.cat((points[:, :, :, :, :, :2] * points[:, :, :, :, :, 2:3], points[:, :, :, :, :, 2:3]), 5)

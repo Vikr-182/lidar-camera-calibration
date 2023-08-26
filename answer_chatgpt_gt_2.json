@@ -1,0 +1,74 @@
+[
+    {
+        "object_id": 1,
+        "bev_centroid": [
+            -35.0,
+            -4.0
+        ],
+        "bev_area": 11.0,
+        "llm_message_llava": "This is a white car."
+    },
+    {
+        "object_id": 2,
+        "bev_centroid": [
+            -3.0,
+            -5.0
+        ],
+        "bev_area": 40.6,
+        "llm_message_llava": "This is gray car."
+    },
+    {
+        "object_id": 7,
+        "bev_centroid": [
+            14.5,
+            -5.5
+        ],
+        "bev_area": 11.6,
+        "llm_message_llava": "This is a red car."
+    },
+    {
+        "object_id": 8,
+        "bev_centroid": [
+            17.0,
+            2.0
+        ],
+        "bev_area": 10.4,
+        "llm_message_llava": "This is a black car. The car is reversing and the rear park lights are on. The car is pulling into a parking space and the rear lights are illuminated. This is a common safety measure for drivers to ensure that other vehicles and pedestrians are aware of their presence and movements while reversing."
+    },
+    {
+        "object_id": 9,
+        "bev_centroid": [
+            19.5,
+            -5.0
+        ],
+        "bev_area": 9.0,
+        "llm_message_llava": "This is a black car."
+    },
+    {
+        "object_id": 10,
+        "bev_centroid": [
+            26.5,
+            9.0
+        ],
+        "bev_area": 20.2,
+        "llm_message_llava": "This is a black car."
+    },
+    {
+        "object_id": 11,
+        "bev_centroid": [
+            27.0,
+            -5.5
+        ],
+        "bev_area": 10.6,
+        "llm_message_llava": "This is a grey car."
+    },
+    {
+        "object_id": 12,
+        "bev_centroid": [
+            46.0,
+            28.5
+        ],
+        "bev_area": 51.4,
+        "llm_message_llava": "This is a large white truck."
+    }
+]

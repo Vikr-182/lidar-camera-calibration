@@ -1,0 +1,110 @@
+[
+    {
+        "object_id": 1,
+        "bev_centroid": [
+            -3.5,
+            3.0
+        ],
+        "bev_area": 25.8,
+        "llm_message_llava": "Road scene with a gray car parked on the side of the road</s>"
+    },
+    {
+        "object_id": 2,
+        "bev_centroid": [
+            3.5,
+            -4.0
+        ],
+        "bev_area": 10.4,
+        "llm_message_llava": "The central object in the image is a black car.</s>"
+    },
+    {
+        "object_id": 3,
+        "bev_centroid": [
+            6.5,
+            -7.0
+        ],
+        "bev_area": 9.0,
+        "llm_message_llava": "Central Object: A black car is parked on the side of the road.</s>"
+    },
+    {
+        "object_id": 6,
+        "bev_centroid": [
+            6.0,
+            -6.5
+        ],
+        "bev_area": 26.8,
+        "llm_message_llava": "The central object in the image is a black car parked on the side of the road.</s>"
+    },
+    {
+        "object_id": 8,
+        "bev_centroid": [
+            -4.0,
+            3.5
+        ],
+        "bev_area": 8.0,
+        "llm_message_llava": "Image: A silver car parked on a city street, with a silver car in front of it.</s>"
+    },
+    {
+        "object_id": 9,
+        "bev_centroid": [
+            -1.0,
+            1.0
+        ],
+        "bev_area": 10.0,
+        "llm_message_llava": "The central object in the image is a white car, which is parked on the side of the road.</s>"
+    },
+    {
+        "object_id": 10,
+        "bev_centroid": [
+            -4.5,
+            4.0
+        ],
+        "bev_area": 16.8,
+        "llm_message_llava": "The central object in the image is a parked car, a white sedan.</s>"
+    },
+    {
+        "object_id": 11,
+        "bev_centroid": [
+            5.5,
+            -6.0
+        ],
+        "bev_area": 26.0,
+        "llm_message_llava": "The central object in the image is a silver car.</s>"
+    },
+    {
+        "object_id": 12,
+        "bev_centroid": [
+            -5.0,
+            4.5
+        ],
+        "bev_area": 12.6,
+        "llm_message_llava": "Central object in the image is a white car, which is parked on the side of the road.</s>"
+    },
+    {
+        "object_id": 13,
+        "bev_centroid": [
+            5.0,
+            -5.0
+        ],
+        "bev_area": 11.0,
+        "llm_message_llava": "The central object in the image is a truck.</s>"
+    },
+    {
+        "object_id": 14,
+        "bev_centroid": [
+            5.0,
+            -5.5
+        ],
+        "bev_area": 8.6,
+        "llm_message_llava": "The central object in the image is a white car parked on the side of the road, with the driver's side window open.</s>"
+    },
+    {
+        "object_id": 15,
+        "bev_centroid": [
+            -6.0,
+            5.5
+        ],
+        "bev_area": 18.0,
+        "llm_message_llava": "The central object in the image is a white car.</s>"
+    }
+]

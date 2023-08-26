@@ -25,35 +25,39 @@ answer_format = {
 }
 
 spatial_operators_list = [
-	"filter_front() : finds the objects to front of the ego-vehicle",
-	"filter_left() : finds the objects to left of the ego-vehicle",
-	"filter_right() : finds the objects to right of the ego-vehicle",
-	"filter_rear() : finds the objects to rear of the ego-vehicle",
-	"find_distance(object_id_1, object_id_2) : finds the distance within 2 objects object_id_1 and object_id_2",
-	"find_objects_within_distance(object_id, distance) : finds the objects within distance to the object with id object_id",
-    "get_k_closest_objects(object_id, k) : get the k closest objects to the object with id object_id"
+	"filter_front(list_of_objects, object_id) : Within the the list of objects, it returns the list of objects to front of the object with id as object_id",
+	"filter_left(list_of_objects, object_id) : Within the the list of objects, it returns the list of objects to left of the object with id as object_id",
+	"filter_right(list_of_objects, object_id) : Within the the list of objects, it returns the list of objects to right of the object with id as object_id",
+	"filter_rear(list_of_objects, object_id) : Within the the list of objects, it returns the list of objects to rear of the object with id as object_id",
+	"find_distance(list_of_objects, object_id_1, object_id_2) : Within the the list of objects, it returns the distance within 2 objects object_id_1 and object_id_2",
+	"find_objects_within_distance(list_of_objects, object_id, distance) : Within the the list of objects, it returns the list of objects within distance to the object with id object_id",
+    "get_k_closest_objects(list_of_objects, object_id, k) : Within the the list of objects, it returns the list of k closest objects to the object with id object_id",
+    "get_k_farthest_objects(list_of_objects, object_id, k) : Within the the list of objects, it gets the k farthest objects to the object with id object_id",
+    "filter_objects_with_tag(list_of_objects, object_id, tagname, d) : Within the the list of objects, it finds the objects which have tag as tagname and are within d distance to the object with id object_id",
+    "filter_color(list_of_objects, object_id, colorname, d): Within the the list of objects, itfinds the objects which have color as colorname and are within d distance to the object with id object_id",
+    "filter_size(list_of_objects, object_id, distance, min_size, max_size): Within the the list of objects, itfinds the objects which have size between min_size and max_size and are within d distance to the object with id object_id"
 ]
 
 def add_question_context(question_type):
     if question_type == "SPATIAL_REASONING":
         return "The question should be about spatial relations between two objects. The question should be mainly based on the coordinates of the two objects. To answer the question, one should find the two mentioned objects, and find their relative spatial relation to answer the question."
     elif question_type == "INSTANCE_ATTRIBUTE":
-        return "The question should be about the attribute of a certain object, such as its color, shape or fine-grained type."
+        return "The question should be about the attribute of a certain object, such as its color, shape or fine-grained type. Do not use the object ID in the question."
     elif question_type == "INSTANCE_COUNTING":
-        return "The question should involve the number of appearance of a certain object. Start with 'How many ....'. The choices of the question should be numbers. To answer the question, one should find and count all of the mentioned objects in the image."
+        return "The question should involve the number of appearance of a certain object. Start with 'How many ....'. The choices of the question should be numbers. To answer the question, one should find and count all of the mentioned objects in the image. Make sure the options are far apart."
     elif question_type == "VISUAL_REASONING":
-        return "Create complex question beyond describing the scene. To answer such question, one should first understanding the visual content, then based on the background knowledge or reasoning, either explain why the things are happening that way, or provide guides and help to user's request. Make the question challenging by not including the visual content details in the question so that the user needs to reason about that first."
+        return "Create complex question beyond describing the scene. To answer such question, one should first understanding the visual content, then based on the background knowledge or reasoning, either explain why the things are happening that way, or provide guides and help to user's request. Make the question challenging by not including the visual content details in the question so that the user needs to reason about that first. Do not use the object ID in the question. Do not mention the coordinates."
     else:
         return ""
 
 def setup_question_generation(question_type):
     message = f"You will be given, as input a 2D road scene in Bird's Eye View, as a list. The ego-vehicle is at (100, 100) facing along the positive Y-axis. Each entry in the list describes one object in the scene, with the following five fields: \
                     \n\n {str(scene_data_format)}  \n\n  \
-                Once you have parsed the JSON and are ready to generate question about the scene, Create a multi-choice question about the scene, and provide the choices and answer. Each question should have 4 options, out of which only 1 should be correct."
+                Once you have parsed the JSON and are ready to generate question about the scene, Create a multi-choice question about the scene, and provide the choices and answer. Each question should have 4 options, out of which only 1 should be correct. Do not use the object ID in the question. Do not mention the coordinates."
     message += add_question_context(question_type)
     return {
         "role": "system",
-        "content": message  + "\n" + str(example) + "\n . NOTE: DO NOT ask simple questions like 'What is the central object in the scene?'."
+        "content": message  + "Please provide answer as well. \n" + str(example) + "\n . NOTE: DO NOT ask simple questions like 'What is the central object in the scene?'."
     }
 
 def add_conversation_context(conversation_type):
@@ -65,7 +69,7 @@ def add_conversation_context(conversation_type):
                     {str(spatial_operators_list)}\
                     For each user question, respond with a JSON dictionary with the following fields:\
                     {str(answer_format)}\
-                    Only output this JSON. Do not output any explanation."
+                    The Object ID of ego-vehicle is 0. Only output this JSON. Do not output any explanation."
 
 def setup_conversation(conversation_type="MCQ"):
     message = f"You will be given, as input a 2D road scene in Bird's Eye View, as a list. The ego-vehicle is at (0,0) facing along the positive Y-axis. Each entry in the list describes one object in the scene, with the following five fields: \

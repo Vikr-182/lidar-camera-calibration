@@ -23,6 +23,7 @@ from nuscenes.eval.common.utils import quaternion_yaw
 from nuscenes.map_expansion.arcline_path_utils import discretize_lane, ArcLinePath
 from nuscenes.utils.data_classes import PointCloud, LidarPointCloud, RadarPointCloud, Box
 from nuscenes.utils.geometry_utils import view_points, box_in_image, BoxVisibility, transform_matrix
+from nuscenes.utils.data_io import load_bin_file
 from stp3.utils.tools import ( gen_dx_bx, get_nusc_maps)
 import matplotlib.pyplot as plt 
 from math import cos, sin
@@ -183,8 +184,6 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         # remove samples that aren't in this split
         samples = [samp for samp in samples if self.nusc.get('scene', samp['scene_token'])['name'] in self.scenes]
         
-        cam = "LIDAR_TOP"
-        samples = [rec for rec in samples if os.path.exists(os.path.join(self.nusc.dataroot, self.nusc.get('sample_data', rec['data'][cam])['filename']))];print(len(samples), "COI:A")    
         # sort by scene, timestamp (only to make chronological viz easier)
         samples.sort(key=lambda x: (x['scene_token'], x['timestamp']))
 
@@ -215,6 +214,40 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
                 indices.append(current_indices)
 
         return np.asarray(indices)
+
+    # def get_indices(self):
+    #     indices = []
+    #     scene_token_mapping = {}
+    #     ixes_new = []
+    #     for index in range(len(self.ixes)):
+    #         if scene_token_mapping.get(self.ixes[index]['scene_token']) == None:
+    #             scene_token_mapping[self.ixes[index]['scene_token']] = 1
+    #             continue
+    #         scene_token_mapping[self.ixes[index]['scene_token']] = scene_token_mapping[self.ixes[index]['scene_token']] + 1
+    #         is_valid_data = True
+    #         previous_rec = None
+    #         current_indices = []
+    #         for t in range(self.sequence_length):
+    #             index_t = index + t
+    #             # Going over the dataset size limit.
+    #             if index_t >= len(self.ixes):
+    #                 is_valid_data = False
+    #                 break
+    #             rec = self.ixes[index_t]
+    #             ixes_new.append(self.ixes[index_t])
+    #             # Check if scene is the same
+    #             if (previous_rec is not None) and (rec['scene_token'] != previous_rec['scene_token']):
+    #                 is_valid_data = False
+    #                 break
+
+    #             current_indices.append(len(ixes_new) - 1)
+    #             previous_rec = rec
+
+    #         if is_valid_data:
+    #             indices.append(current_indices)
+
+    #     self.ixes = ixes_new
+    #     return np.asarray(indices)
 
     def get_resizing_and_cropping_parameters(self):
         original_height, original_width = self.cfg.IMAGE.ORIGINAL_HEIGHT, self.cfg.IMAGE.ORIGINAL_WIDTH
@@ -262,6 +295,10 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         camera_intrinsics = []
         point_clouds = []
         point_clouds_labels = []
+        point_clouds_panoptic_labels = []
+        panoptic_mappings_list = []
+        extra_rotations = []
+        extra_translations = []
         cameras = self.cfg.IMAGE.NAMES
 
         # # The extrinsics we want are from the camera sensor to "flat egopose" as defined
@@ -287,6 +324,13 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         # # Here we just grab the front camera and the point sensor.
         pointsensor = self.nusc.get('sample_data', rec['data']['LIDAR_TOP'])
         pcl_path = osp.join(self.nusc.dataroot, pointsensor['filename'])
+        # panoptic_mappings = [samp.token for samp in self.nusc.get_sample_data(rec['data']['LIDAR_TOP'])[1]]
+        panoptic_mappings = []
+        for ok in rec['anns']:
+            panoptic_mappings.append(self.nusc.get('sample_annotation', ok)['token'])
+        panoptic_labels_filename = osp.join(self.nusc.dataroot, self.nusc.get('panoptic', rec['data']['LIDAR_TOP'])['filename'])
+        panoptic_labels = load_bin_file(panoptic_labels_filename, type='panoptic').astype(np.int32)
+        point_clouds_panoptic_labels.append(panoptic_labels)
         for cam in cameras:
             camera_sample = self.nusc.get('sample_data', rec['data'][cam])
             sample_token = camera_sample['token']
@@ -295,22 +339,29 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             lidarseg_labels_filename = osp.join(self.nusc.dataroot, self.nusc.get("lidarseg", rec['data']['LIDAR_TOP'])['filename'])
             points_label = np.fromfile(lidarseg_labels_filename, dtype=np.uint8)
 
+
             cs_record = self.nusc.get('calibrated_sensor', pointsensor['calibrated_sensor_token'])
             pc = LidarPointCloud.from_file(pcl_path)
             ### LIDAR TO EGO_{TL} TRANSLATION -> CONSTANT
             pc.rotate(Quaternion(cs_record['rotation']).rotation_matrix)
             pc.translate(np.array(cs_record['translation']))
+
+            point_clouds.append(torch.tensor(np.array(pc.points)).unsqueeze(0).unsqueeze(0)) # 1, 1, N, 4
+            point_clouds_labels.append(torch.tensor(np.array(points_label)).unsqueeze(0).unsqueeze(0)) # 1, 1, N, 
+
             poserecord = self.nusc.get('ego_pose', pointsensor['ego_pose_token'])
+            extra_rotations.append(Quaternion(poserecord['rotation']).rotation_matrix)
+            extra_translations.append(np.array(poserecord['translation']))
             pc.rotate(Quaternion(poserecord['rotation']).rotation_matrix)
             pc.translate(np.array(poserecord['translation']))
 
             # Third step: transform from global into the ego vehicle frame for the timestamp of the image.
             poserecord = self.nusc.get('ego_pose', camm['ego_pose_token'])
+            extra_rotations.append(Quaternion(poserecord['rotation']).rotation_matrix.T)
+            extra_translations.append(np.array(poserecord['translation']))            
             pc.translate(-np.array(poserecord['translation']))
             pc.rotate(Quaternion(poserecord['rotation']).rotation_matrix.T)
 
-            point_clouds.append(torch.tensor(np.array(pc.points)).unsqueeze(0).unsqueeze(0)) # 1, 1, N, 4
-            point_clouds_labels.append(torch.tensor(np.array(points_label)).unsqueeze(0).unsqueeze(0)) # 1, 1, N, 
             # Transformation from world to egopose
             car_egopose = self.nusc.get('ego_pose', camera_sample['ego_pose_token'])
             egopose_rotation = Quaternion(car_egopose['rotation']).inverse
@@ -380,7 +431,7 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             translations.append(torch.tensor(-np.array(cs_record['translation'])).unsqueeze(0).unsqueeze(0))
             camera_intrinsics.append(torch.tensor(np.array(cs_record['camera_intrinsic'])).unsqueeze(0).unsqueeze(0))
 
-        images, intrinsics, extrinsics, unnormalized_images, rotations, translations, camera_intrinsics, point_clouds, point_clouds_labels = (torch.cat(images, dim=1),
+        images, intrinsics, extrinsics, unnormalized_images, rotations, translations, camera_intrinsics, point_clouds, point_clouds_labels, point_clouds_panoptic_labels, panoptic_mappings_list = (torch.cat(images, dim=1),
                                             torch.cat(intrinsics, dim=1),
                                             torch.cat(extrinsics, dim=1),
                                             torch.cat(unnormalized_images, dim=1),
@@ -388,12 +439,14 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
                                             torch.cat(translations, dim=1),
                                             torch.cat(camera_intrinsics, dim=1),
                                             torch.cat(point_clouds, dim=1),
-                                            torch.cat(point_clouds_labels, dim=1)
+                                            torch.cat(point_clouds_labels, dim=1),
+                                            point_clouds_panoptic_labels,
+                                            panoptic_mappings
                                           )
         if len(depths) > 0:
             depths = torch.cat(depths, dim=1)
 
-        return images, intrinsics, extrinsics, depths, unnormalized_images, rotations, translations, camera_intrinsics, point_clouds, point_clouds_labels, my_scene_token
+        return images, intrinsics, extrinsics, depths, unnormalized_images, rotations, translations, camera_intrinsics, point_clouds, point_clouds_labels, point_clouds_panoptic_labels, my_scene_token, panoptic_mappings_list
 
     def _get_top_lidar_pose(self, rec):
         egopose = self.nusc.get('ego_pose', self.nusc.get('sample_data', rec['data']['LIDAR_TOP'])['ego_pose_token'])
@@ -401,7 +454,6 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         yaw = Quaternion(egopose['rotation']).yaw_pitch_roll[0]
         # rot = Quaternion(scalar=np.cos(yaw / 2), vector=[0, 0, np.sin(yaw / 2)])
         rot = Quaternion(egopose['rotation']).inverse
-        # print(Quaternion(egopose['rotation']).inverse.rotation_matrix, Quaternion(scalar=np.cos(yaw / 2), vector=[0, 0, np.sin(yaw / 2)]).rotation_matrix)
         return trans, rot
 
     def get_depth_from_lidar(self, lidar_sample, cam_sample):
@@ -425,6 +477,7 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         # Background is ID 0
         instance = np.zeros((self.bev_dimension[0], self.bev_dimension[1]))
         categories_map = []
+        bottom_corners = {}
 
         for annotation_token in rec['anns']:
             # Filter out all non vehicle instances
@@ -440,18 +493,18 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
                 if annotation['instance_token'] not in instance_map:
                     instance_map[annotation['instance_token']] = len(instance_map) + 1
                 instance_id = instance_map[annotation['instance_token']]
-                poly_region, z = self._get_poly_region_in_image(annotation, translation, rotation)
+                poly_region, z, corners = self._get_poly_region_in_image(annotation, translation, rotation)
                 cv2.fillPoly(instance, [poly_region], instance_id)
                 cv2.fillPoly(segmentation, [poly_region], 1.0)
-                categories_map.append([annotation, np.mean(poly_region, axis=0)])
+                categories_map.append([annotation, np.mean(corners, axis=1)])
+                bottom_corners[annotation['token']] = corners
             elif 'human' in annotation['category_name']:
                 if annotation['instance_token'] not in instance_map:
                     instance_map[annotation['instance_token']] = len(instance_map) + 1
-                poly_region, z = self._get_poly_region_in_image(annotation, translation, rotation)
+                poly_region, z, corners = self._get_poly_region_in_image(annotation, translation, rotation)
                 cv2.fillPoly(pedestrian, [poly_region], 1.0)
 
-
-        return segmentation, instance, pedestrian, instance_map, categories_map
+        return segmentation, instance, pedestrian, instance_map, categories_map, bottom_corners
 
     def _get_poly_region_in_image(self, instance_annotation, ego_translation, ego_rotation):
         box = Box(
@@ -460,22 +513,23 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         # import pdb; pdb.set_trace()
         box.translate(ego_translation)
         box.rotate(ego_rotation)
+        corners = box.corners()
 
         pts = box.bottom_corners()[:2].T
         pts = np.round((pts - self.bev_start_position[:2] + self.bev_resolution[:2] / 2.0) / self.bev_resolution[:2]).astype(np.int32)
         pts[:, [1, 0]] = pts[:, [0, 1]]
 
         z = box.bottom_corners()[2, 0]
-        return pts, z
+        return pts, z, corners
 
     def get_label(self, rec, instance_map, in_pred):
-        segmentation_np, instance_np, pedestrian_np, instance_map, categories_map = \
+        segmentation_np, instance_np, pedestrian_np, instance_map, categories_map, bottom_corners = \
             self.get_birds_eye_view_label(rec, instance_map, in_pred)
         segmentation = torch.from_numpy(segmentation_np).long().unsqueeze(0).unsqueeze(0)
         instance = torch.from_numpy(instance_np).long().unsqueeze(0)
         pedestrian = torch.from_numpy(pedestrian_np).long().unsqueeze(0).unsqueeze(0)
 
-        return segmentation, instance, pedestrian, instance_map, categories_map
+        return segmentation, instance, pedestrian, instance_map, categories_map, bottom_corners
 
     def get_future_egomotion(self, rec, index):
         rec_t0 = rec
@@ -560,7 +614,6 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
 
     def generate_centerlines(self, rec, map_name):
 
-        # print(rec, map_name)
 
         dx, bx, _ = gen_dx_bx(self.cfg.LIFT.X_BOUND, self.cfg.LIFT.Y_BOUND, self.cfg.LIFT.Z_BOUND)
         stretch = [self.cfg.LIFT.X_BOUND[1], self.cfg.LIFT.Y_BOUND[1]]
@@ -593,7 +646,6 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             # keep increasing search space until lane is found
             closest_lane = nusc_map.get_closest_lane(x, y, radius=radius_init)
             radius_init *= 2
-        # print(closest_lane, "AAAAAAAAAAAAAAA")
         candidates_future = dfs(nusc_map, closest_lane, dist=0, threshold=self.cfg.DATASET.THRESHOLD, resolution_meters=resolution_meters)
         candidates_past = dfs_incoming(nusc_map, closest_lane, dist=0, threshold=self.cfg.DATASET.THRESHOLD, resolution_meters=resolution_meters)
         lane_ids = []
@@ -845,7 +897,8 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
                 'segmentation', 'instance', 'centerness', 'offset', 'flow', 'pedestrian',
                 'future_egomotion', 'hdmap', 'gt_trajectory', 'indices', 'poses', 'unnormalized_images',\
                 'rotations', 'translations', 'camera_intrinsics', 'point_clouds', 'point_clouds_labels', \
-                'scene_token', 'categories_map'
+                'point_clouds_panoptic_labels', 'scene_token', 'categories_map', 'panoptic_mappings_list', \
+                'bottom_corners'
                 ]
         for key in keys:
             data[key] = []
@@ -864,7 +917,7 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             map_name = self.scene2map[self.nusc.get('scene', rec['scene_token'])['name']]
 
             if i < self.receptive_field:
-                images, intrinsics, extrinsics, depths, unnormalized_images, rotations, translations, camera_intrinsics, point_clouds, point_clouds_labels, scene_token = self.get_input_data(rec)
+                images, intrinsics, extrinsics, depths, unnormalized_images, rotations, translations, camera_intrinsics, point_clouds, point_clouds_labels, point_clouds_panoptic_labels, scene_token, panoptic_mappings_list = self.get_input_data(rec)
                 data['image'].append(images)
                 data['unnormalized_images'].append(unnormalized_images)
                 data['intrinsics'].append(intrinsics)
@@ -877,7 +930,7 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
                 data['point_clouds_labels'].append(point_clouds_labels)
                 data['scene_token'].append(scene_token)
 
-            segmentation, instance, pedestrian, instance_map, categories_map = self.get_label(rec, instance_map, in_pred)
+            segmentation, instance, pedestrian, instance_map, categories_map, bottom_corners = self.get_label(rec, instance_map, in_pred)
 
             future_egomotion = self.get_future_egomotion(rec, index_t)
             hd_map_feature = self.voxelize_hd_map(rec)
@@ -889,7 +942,10 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
             data['hdmap'].append(hd_map_feature)
             data['indices'].append(index_t)
             data['categories_map'].append(categories_map)
-
+            # import pdb; pdb.set_trace()
+            data['point_clouds_panoptic_labels'].append(point_clouds_panoptic_labels)
+            data['panoptic_mappings_list'].append(panoptic_mappings_list)
+            data['bottom_corners'].append(bottom_corners)
 
         for key, value in data.items():
             if key in ['image', 'intrinsics', 'extrinsics', 'depths', 'segmentation', 'instance', 'future_egomotion', 'hdmap', 'pedestrian', 'camera_intrinsics', 'rotations', 'translations', 'unnormalized_images']:

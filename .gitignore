@@ -24,3 +24,5 @@ grit/
 models/
 sample_cam_imgs/
 0/
+*_0*
+imgs/

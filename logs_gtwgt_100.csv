@@ -1,0 +1,2143 @@
+,Question,Correct Answer,ChatGPT Answer
+0,"Which car is closest to the blue Toyota Sienna minivan car?
+A. Blue car
+B. White car
+C. Silver car
+D. Black car
+
+",A. Blue car,White car
+1,"How many blue cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+2,"What color is the car at the center of the scene?
+A. Blue
+B. White
+C. Silver
+D. Black
+
+",A. Blue,Blue
+3,"Which car is closest to the blue Toyota Sienna minivan car?
+A. Blue car
+B. White car
+C. Silver car
+D. Black car
+
+",A. Blue car,White car
+4,"How many blue cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+5,"What color is the car at the center of the scene?
+A. Blue
+B. White
+C. Silver
+D. Black
+
+",A. Blue,Blue
+6,"Which object is closer to the ego-vehicle? 
+A. White truck
+B. Black van
+C. Blue car
+D. White car
+
+",Blue car,White truck
+7,"How many white vehicles are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+8,"Question: What is the color of the van in the scene?
+
+A. White
+B. Black
+C. Blue
+D. Black and white
+
+",B. Black,Black
+9,"Which object is closest to the black sedan with a white license plate?
+A. White car
+B. White van
+C. Black car with tinted windows
+D. Black pickup truck
+
+",Black car with tinted windows,Black car with tinted windows
+10,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,3
+11,"Question: What type of vehicle is described as a ""black sedan with a white license plate""?
+
+A. Car
+B. Truck
+C. Van
+D. SUV
+
+",A. Car,Car
+12,"Which car is closer to the yellow bus?
+A. Silver car
+B. Black car
+C. White car
+D. Red car
+
+",Silver car,White car
+13,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,3
+14,"What color is the clown face on the yellow car? 
+A. Red 
+B. Blue 
+C. Green 
+D. Not mentioned 
+
+",D. Not mentioned,Not mentioned
+15,"Which car is closer to the ego-vehicle? 
+A. Silver car
+B. White car
+C. White sedan
+D. Cannot be determined
+
+",B. White car,White car
+16,"How many silver cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+17,"Q: What is the color of the car located at (-33.0, 13.5) in the scene? 
+A. Silver
+B. White
+C. Black
+D. Red
+
+",A. Silver,Silver
+18,"Which object is closest to the black and white truck? 
+A. Small car 
+B. Black car 
+C. Black pickup truck 
+D. Large tree 
+
+",C. Black pickup truck,Black pickup truck
+19,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+20,"Question: What is the color of the pickup truck that is next to a white car?
+
+A) Black
+B) Red
+C) Silver
+D) White
+
+",B) Red,Red
+21,"Which of the following statements is true about the car in the scene?
+A. The car is located to the left of the ego-vehicle.
+B. The car is located to the right of the ego-vehicle.
+C. The car is located above the ego-vehicle.
+D. The car is located below the ego-vehicle.
+
+",A. The car is located to the left of the ego-vehicle.,The car is located to the left of the ego-vehicle.
+22,"How many cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+23,"What is the object in the scene? 
+A. Car
+B. Bicycle
+C. Pedestrian
+D. Truck
+
+",A. Car,Car
+24,"Which object is closest to the metal pole? 
+A. Gray truck
+B. Black car
+C. Black sedan car
+D. Traffic light
+
+",Black car,Traffic light
+25,"How many cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",C. 4,4
+26,"Question: What is the purpose of the black sedan car in the scene?
+
+A. It is parked on the side of the road.
+B. It is waiting at a traffic light.
+C. It is involved in a collision with another vehicle.
+D. It is driving along the road.
+
+",D. It is driving along the road.,It is parked on the side of the road.
+27,"Which object is closest to the blue van?
+A. Silver car
+B. White tractor trailer truck
+C. Gray car
+D. Motorcycle
+
+",Silver car,Silver car
+28,"How many silver cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+29,"Question: What type of vehicle is the object with the ID 8?
+
+A. Silver car
+B. White tractor trailer truck
+C. Motorcycle
+D. Blue van
+
+",C. Motorcycle,Motorcycle
+30,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 9
+C. Object 10
+D. Object 13
+
+",A. Object 1,Object 9
+31,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+32,"Question: What type of vehicle is described as ""This is a black and silver truck""?
+
+A. Car
+B. Truck
+C. Invalid
+D. Big truck with a trailer
+
+",B. Truck,Truck
+33,"Which object is closer to the ego-vehicle? 
+A. Black car
+B. White bus
+C. White van or truck
+D. White van with some black accents
+
+",A. Black car,Black car
+34,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+35,"What type of vehicle is the object with ID 3? 
+A. Car 
+B. Bus 
+C. Van 
+D. Truck 
+
+",C. Van,Van
+36,"Which object is closest to the black car?
+A. White truck
+B. Gray SUV
+C. Large white truck
+D. Bus
+
+",Gray SUV,Large white truck
+37,"How many white trucks are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",A. 1,1
+38,"What type of vehicle is the largest in the scene? 
+A. White truck
+B. Black car
+C. Gray SUV
+D. Large white truck
+
+",D. Large white truck,Large white truck
+39,"Which car is closer to the yellow bike?
+A. White sedan car
+B. Black car
+C. Silver car
+D. White car
+
+",Black car,Black car
+40,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+41,"What color is the sedan car in the scene?
+A. White
+B. Black
+C. Silver
+D. Blue
+
+",A. White,White
+42,"Which object is closer to the ego-vehicle, the white car or the silver car?
+A. White car
+B. Silver car
+C. Both are at the same distance from the ego-vehicle
+D. Cannot be determined from the given information
+
+",B. Silver car,Silver car
+43,"How many cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+44,"What is the color of the car at the bottom left corner of the scene?
+A. White
+B. Silver
+C. Blue
+D. Yellow
+
+",B. Silver,Silver
+45,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",C. Object 3,Object 3
+46,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+47,"Question: What type of vehicles are present in the scene?
+
+A. Car and truck
+B. Car and bicycle
+C. Car and motorcycle
+D. Car and bus
+
+",A. Car and truck,Car and truck
+48,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",A. Object 1,Object 1
+49,"How many white cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+50,"Question: What is the color of the car closest to the ego-vehicle?
+
+A. White
+B. Silver
+C. Black
+D. Red
+
+",A. White,White
+51,"Which object is closer to the ego-vehicle? 
+A. Gray car
+B. White van
+C. No car
+D. Silver car
+
+",Gray car,White van
+52,"How many gray cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+53,"Question: Which object in the scene has the largest area?
+
+A. Gray car
+B. No car
+C. White van
+D. Silver car
+
+",C. White van,White van
+54,"Which object is closer to the ego-vehicle, the white truck or the blue car?
+A. White truck
+B. Blue car
+C. Both are at the same distance from the ego-vehicle
+D. Cannot be determined
+
+",A. White truck,Blue car
+55,"How many white trucks are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+56,"What type of vehicle is described as ""a small, white car""? 
+A. Truck
+B. SUV
+C. Car
+D. Crossover
+
+",C. Car,Car
+57,"Which object is closest to the black SUV? 
+A. Black car
+B. White van
+C. Yellow bus
+D. Silver car
+
+",Black car,White van
+58,"How many black cars are there in the scene?
+A. 3
+B. 4
+C. 5
+D. 6
+
+",C. 5,5
+59,"What color is the car at the bottom left corner of the scene?
+A. Black
+B. White
+C. Silver
+D. Red
+
+",B. White,White
+60,"Which object is closest to the black car? 
+A. White truck
+B. Red truck
+C. White SUV
+D. White van
+
+",White truck,White SUV
+61,"How many cars are there in the scene?
+A. 3
+B. 4
+C. 5
+D. 6
+
+",C. 5,5
+62,"What type of vehicle is described as an ""18-wheel tractor-trailer truck""? 
+A. Car
+B. White truck
+C. Black car
+D. 18-wheel tractor-trailer truck
+
+",D. 18-wheel tractor-trailer truck,18-wheel tractor-trailer truck
+63,"Question: What is the spatial relation between the large truck with a trailer and the black car?
+
+A. The large truck with a trailer is to the left of the black car.
+B. The large truck with a trailer is to the right of the black car.
+C. The large truck with a trailer is behind the black car.
+D. The large truck with a trailer is in front of the black car.
+
+",C. The large truck with a trailer is behind the black car.,The large truck with a trailer is behind the black car.
+64,"How many cars are present in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",C. 4,4
+65,"Question: What is the weather condition in the scene?
+
+A. Sunny
+B. Rainy
+C. Snowy
+D. Foggy
+
+",B. Rainy,Rainy
+66,"Which object is closer to the black sports car? 
+A. Black car with a sunroof
+B. White pickup truck
+C. Black car
+D. Black car with a spoiler
+
+",Black car with a sunroof,Black car
+67,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+68,"What type of vehicle is described as ""a black sports car""? 
+A. Sedan
+B. SUV
+C. Pickup truck
+D. Sports car
+
+",D. Sports car,Sports car
+69,"Which object is closer to the ego-vehicle? 
+A. Black truck
+B. White truck
+C. Blue box-style truck with a white cab
+D. Yellow backhoe loader
+
+",B. White truck,Black truck
+70,"How many black trucks are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+71,"What type of truck is described as having a blue box-style with a white cab? 
+A. Black truck
+B. White truck
+C. Blue truck
+D. Yellow truck
+
+",C. Blue truck,Blue truck
+72,"Which car is closest to the red SUV?
+A. White car
+B. Black car
+C. White SUV
+D. Silver car
+
+",White car,White car
+73,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+74,"What color is the SUV in the scene?
+A. Red
+B. Black
+C. White
+D. Silver
+
+",A. Red,Red
+75,"Which object is closer to the large black car? 
+A. Street sign 
+B. Light pole 
+C. Streetlight 
+D. White car 
+
+",Street sign,Streetlight
+76,"How many street signs are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,2
+77,"What is the purpose of the object with ID 1 in the scene? 
+A. To indicate the name of the street
+B. To provide information about the speed limit
+C. To warn about a pedestrian crossing
+D. To indicate the direction of the road
+
+",B. To provide information about the speed limit,To indicate the name of the street
+78,"Which object is closer to the ego-vehicle, the large truck or the brown car?
+A. Large truck
+B. Brown car
+C. Both are at the same distance from the ego-vehicle
+D. Cannot be determined
+
+",B. Brown car,Brown car
+79,"How many cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",C. 4,4
+80,"What type of vehicle is described as a ""large truck"" in the scene? 
+A. Car 
+B. Truck 
+C. SUV 
+D. Semi-truck 
+
+",B. Truck,Truck
+81,"Which car is closer to the ego-vehicle? 
+A. Black car
+B. No car information present
+C. Silver car
+D. None of the above
+
+",C. Silver car,Silver car
+82,"How many black cars are present in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+83,"Q: What color is the car located at (-22, -0.5)? 
+A. Black 
+B. Silver 
+C. No car information present 
+D. White 
+
+",A. Black,Black
+84,"Question: What is the spatial relation between the white truck and the black BMW?
+
+A. The white truck is to the left of the black BMW.
+B. The white truck is to the right of the black BMW.
+C. The white truck is above the black BMW.
+D. The white truck is below the black BMW.
+
+",A. The white truck is to the left of the black BMW.,The white truck is to the left of the black BMW.
+85,"How many black cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",C. 4,4
+86,"Question: What is the color of the car that is closest to the ego-vehicle?
+
+A. White
+B. Blue
+C. Black
+D. Red
+
+",C. Black,Black
+87,"Which object is closer to the ego-vehicle, the white car or the black Toyota car?
+A. White car
+B. Black Toyota car
+C. Both are at the same distance
+D. Cannot be determined
+
+",A. White car,Black Toyota car
+88,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+89,"What color is the car with its lights on?
+A. White
+B. Black
+C. Red
+D. Blue
+
+",A. White,Blue
+90,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",B. Object 2,Object 1
+91,"How many cars are present in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+92,"What is the color of the blue car in the scene?
+A. Red
+B. Blue
+C. White
+D. Black
+
+",B. Blue,Blue
+93,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Cannot be determined
+
+",C. Object 3,Object 3
+94,"How many cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+95,"Question: What can you infer about the objects in the scene based on the llm_message field?
+
+A. There is a black and white car in the scene.
+B. There is no car mentioned in the scene.
+C. There is a car mentioned in the scene.
+D. There is a black and white car and a car mentioned in the scene.
+
+",D. There is a black and white car and a car mentioned in the scene.,There is a car mentioned in the scene.
+96,"Which object is closest to the black pickup truck? 
+A. White car
+B. Large flatbed truck
+C. Large, gray truck
+D. Black car
+
+",D. Black car,Black car
+97,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+98,"What color is the van in the scene?
+A. White
+B. Brown and white
+C. Black
+D. Silver
+
+",B. Brown and white,White
+99,"Which object is closer to the ego-vehicle? 
+A. Black SUV 
+B. White truck with a City Line Food Service logo 
+C. Large white truck with a red stripe 
+D. White box truck 
+
+",Black SUV,Black SUV
+100,"How many white trucks are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,2
+101,"What type of vehicle is described as a ""large, silver luxury car""? 
+A. SUV 
+B. Truck 
+C. Car 
+D. Box truck 
+
+",C. Car,Car
+102,"Which object is closer to the ego-vehicle? 
+A. Dark colored truck
+B. Silver car
+C. Black van
+D. No information about the car
+
+",Silver car,Black van
+103,"How many dark colored trucks are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+104,"Question: What can you infer about the objects in the scene based on their llm_message?
+
+A. The dark colored truck is the largest object in the scene.
+B. The silver car is the smallest object in the scene.
+C. The black van is the second largest object in the scene.
+D. The white or gray truck is not visible in the scene.
+
+",C. The black van is the second largest object in the scene.,The dark colored truck is the largest object in the scene.
+105,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Both objects are at the same distance from the ego-vehicle
+D. Cannot be determined
+
+",C. Both objects are at the same distance from the ego-vehicle,Both objects are at the same distance from the ego-vehicle
+106,"How many cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",A. 0,0
+107,"What is the message about the first object in the scene? 
+A. There is a car.
+B. There is no car.
+C. There is a pedestrian.
+D. There is no pedestrian.
+
+",B. There is no car.,There is no car.
+108,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",C. Object 3,Object 1
+109,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+110,"Question: What type of vehicle is present in the scene?
+
+A. Car
+B. Truck
+C. Motorcycle
+D. Bicycle
+
+",B. Truck,Truck
+111,"Which object is closer to the ego-vehicle? 
+A. Black and white bus
+B. White van
+C. Brown FedEx truck
+D. White car
+
+",White car,White van
+112,"How many black and white buses are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+113,"Question: What type of vehicle is described as a ""black truck with a trailer"" in the scene?
+
+A. Bus
+B. Van
+C. FedEx truck
+D. Car
+
+",C. FedEx truck,FedEx truck
+114,"Which object is closest to the white arrow? 
+A. Black car
+B. White car
+C. Street sign
+D. Truck
+
+",Street sign,Street sign
+115,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,3
+116,"Question: What is the purpose of the white arrows in the scene?
+
+A. To indicate the direction of traffic flow
+B. To mark the location of a pedestrian crossing
+C. To indicate the presence of a construction zone
+D. To guide vehicles into the correct lane
+
+",A. To indicate the direction of traffic flow,To indicate the direction of traffic flow
+117,"Which object is closer to the ego-vehicle? 
+A. White car
+B. Black car
+C. White SUV
+D. Cannot be determined
+
+",B. Black car,White car
+118,"How many white cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+119,"What type of vehicles are present in the scene? 
+A. Sedans 
+B. SUVs 
+C. Trucks 
+D. Motorcycles 
+
+",A. Sedans and B. SUVs,SUVs
+120,"Which object is closest to the white car?
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 7
+
+",D. Object 7,Object 1
+121,"How many white cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+122,"Question: What can we infer about the white car in the scene?
+
+A. The white car is the largest object in the scene.
+B. The white car is the closest object to the ego-vehicle.
+C. The white car is the only car in the scene.
+D. The white car is the farthest object from the ego-vehicle.
+
+",B. The white car is the closest object to the ego-vehicle.,The white car is the only car in the scene.
+123,"Which object is closest to the blue truck?
+A. Black car
+B. Red car
+C. Large black pickup truck
+D. White Ford car
+
+",Black car,Large black pickup truck
+124,"How many blue trucks are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+125,"Question: What color is the pickup truck in the scene?
+
+A. Blue
+B. Black
+C. Red
+D. White
+
+",D. White,White
+126,"Which object is closest to the white Google autonomous car?
+A. Yellow bicycle
+B. White Audi SUV
+C. White car
+D. Black and white van
+
+",B. White Audi SUV,White car
+127,"How many white vehicles are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+128,"What type of vehicle is the white Google autonomous car? 
+A. Sedan 
+B. SUV 
+C. Hatchback 
+D. Minivan 
+
+",B. SUV,Sedan
+129,"Which car is closest to the yellow van?
+A. Black car
+B. Silver car
+C. White car
+D. Blue car
+
+",Black car,Black car
+130,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,3
+131,"What color is the van with a white top?
+A. Yellow
+B. White
+C. Black
+D. Silver
+
+",A. Yellow,White
+132,"Which object is closest to the black sedan? 
+A. White truck
+B. White Jeep
+C. Truck
+D. White semi-truck with a blue stripe
+
+",C. Truck,Truck
+133,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+134,"Question: What type of vehicle is described as a white Jeep?
+
+A. Sedan
+B. Truck
+C. Car
+D. Jeep
+
+",D. Jeep,Jeep
+135,"Which object is closest to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",B. Object 2,Object 1
+136,"How many black cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",C. 4,4
+137,"Question: What color is the car that is likely a sedan?
+
+A. Black
+B. White
+C. Silver
+D. Red
+
+",C. Silver,Silver
+138,"Which object is closer to the ego-vehicle, the red truck or the black car?
+A. Red truck
+B. Black car
+C. Both are at the same distance from the ego-vehicle
+D. Cannot be determined
+
+",B. Black car,Black car
+139,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+140,"What color is the car at the bottom left corner of the scene?
+A. White
+B. Red
+C. Black
+D. Blue and white
+
+",C. Black,White
+141,"Which object is closer to the ego-vehicle? 
+A. Black car
+B. Large white bus
+C. Large dark truck
+D. Large double-decker bus
+
+",A. Black car,Black car
+142,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+143,"What type of vehicle is the object with ID 1? 
+A. Car
+B. Bus
+C. Truck
+D. Double-decker bus
+
+",A. Car,Car
+144,"Which object is closer to the metal fence with an open gate? 
+A. Red car
+B. Black truck with a white stripe and a white car with a black stripe
+C. White car with manual transmission
+D. Silver car
+
+",Silver car,Red car
+145,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+146,"What color is the car with manual transmission? 
+A. Red 
+B. Black 
+C. White 
+D. Silver 
+
+",C. White,White
+147,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",C. Object 3,Object 1
+148,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+149,"What is the color of the car with its headlights on?
+A. Black
+B. White
+C. Red
+D. Blue
+
+",B. White,White
+150,"Which object is closer to the ego-vehicle? 
+A. Black jacket and black pants
+B. Large blue bus with 'BAS PEKERJA' written on it
+C. White van
+D. Man wearing a backpack
+
+",Black jacket and black pants,White van
+151,"How many white vans are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+152,"What is the color of the jacket and pants? 
+A. Black 
+B. Blue 
+C. White 
+D. Red 
+
+",A. Black,Black
+153,"Which object is located to the left of the black truck? 
+A. White car
+B. White van
+C. Black car
+D. White truck
+
+",White car,Black car
+154,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+155,"What type of vehicle is located at the coordinates (-28.0, -6.5)? 
+A. Car
+B. Van
+C. Truck
+D. None of the above
+
+",A. Car,Car
+156,"Which object is closer to the red mailbox? 
+A. Black luxury car
+B. Black Mercedes car
+C. White van
+D. None of the above
+
+",A. Black luxury car,None of the above
+157,"How many black Mercedes cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+158,"What type of vehicle is the black luxury car in the scene?
+
+A. Sedan
+B. SUV
+C. Convertible
+D. Hatchback
+
+",A. Sedan,Sedan
+159,"Which object is closest to the black truck with a trailer? 
+A. This is not a car.
+B. This is a blue car.
+C. This is a black car.
+D. This is a white taxi.
+
+",C. This is a black car.,This is a black car.
+160,"How many black cars are present in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+161,"Question: What type of vehicle is described as a black truck with a trailer?
+
+A. Car
+B. Van
+C. Taxi
+D. Truck
+
+",D. Truck,Truck
+162,"Which object is closer to the white van? 
+A. Green fence 
+B. Yellow bicycle 
+C. Red car 
+D. Fence 
+
+",Yellow bicycle,Yellow bicycle
+163,"How many green fences are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+164,"What is the color of the van in the scene?
+A. Green
+B. White
+C. Yellow
+D. Red
+
+",B. White,White
+165,"Which object is closest to the black minivan or van? 
+A. This is a white truck.
+B. This is a car.
+C. This is a red pickup truck.
+D. This is a black car.
+
+",D. This is a black car.,This is a black car.
+166,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+167,"What color is the pickup truck in the scene?
+A. White
+B. Red
+C. Black
+D. No information provided
+
+",B. Red,Red
+168,"Question: Which object is closer to the ego-vehicle?
+
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",B. Object 2,Object 1
+169,"How many white cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+170,"What type of object is located at (-25.0, 2.5) in the scene? 
+A. Car 
+B. Truck 
+C. Not a car 
+D. White car 
+
+",C. Not a car,Not a car
+171,"Which object is closest to the large white tractor-trailer truck?
+A. White semi-truck
+B. Bicycle
+C. Sedan car
+D. Large black truck
+
+",Bicycle,White semi-truck
+172,"How many bicycles are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+173,"What type of vehicle is the large black object in the scene?
+A. Sedan car
+B. Large black truck
+C. Large white tractor-trailer truck
+D. Large white semi-truck
+
+",B. Large black truck,Large black truck
+174,"Which car is closest to the ego-vehicle? 
+A. Black car at (-48.5, -2.0)
+B. Black car at (-44.5, 4.5)
+C. Black sedan at (-37.5, -7.5)
+D. White car at (-31.0, 11.0)
+
+","A. Black car at (-48.5, -2.0)","Black car at (-48.5, -2.0)"
+175,"How many black cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",B. 3,4
+176,"Question: What color is the sedan in the scene?
+
+A. Black
+B. White
+C. Grey
+D. Red
+
+",C. Grey,Grey
+177,"Which object is closest to the white van? 
+A. Silver truck
+B. Silver car
+C. Large white truck
+D. Red bicycle
+
+",Silver truck,Large white truck
+178,"How many silver trucks are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+179,"What type of vehicle is the object with ID 1? 
+A. Silver truck
+B. White van
+C. Silver car
+D. Large white truck
+
+",A. Silver truck,Silver truck
+180,"Which object is closer to the ego-vehicle? 
+A. Black car
+B. White car
+C. Large truck
+D. Blue bicycle
+
+",A. Black car,Black car
+181,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+182,"Question: What type of vehicle is the black car?
+
+A. Sedan
+B. SUV
+C. Hatchback
+D. Convertible
+
+",A. Sedan,Sedan
+183,"Which object is closer to the ego-vehicle? 
+A. Black truck or SUV
+B. Black car
+C. Black Chevy truck
+D. Silver old car
+
+",Black car,Black truck or SUV
+184,"How many black cars are present in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,2
+185,"What type of vehicle is described as a ""black truck or SUV"" in the scene? 
+A. Sedan 
+B. Motorcycle 
+C. Truck 
+D. Convertible 
+
+",C. Truck,Truck
+186,"Which object is closer to the ego-vehicle? 
+A. Black Toyota Sienna minivan
+B. Black Toyota car
+C. White large SUV
+D. Long white truck or bus
+
+",Black Toyota Sienna minivan,Black Toyota Sienna minivan
+187,"How many black Toyota cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+188,"Question: What type of vehicle is the black Toyota Sienna minivan?
+
+A. Sedan
+B. SUV
+C. Minivan
+D. Truck
+
+",C. Minivan,Minivan
+189,"Which object is closer to the ego-vehicle? 
+A. Black truck
+B. White truck
+C. Car
+D. None of the above
+
+",C. Car,Car
+190,"How many black trucks are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+191,"What type of vehicle is present in the scene? 
+A. Car
+B. Black truck
+C. White truck
+D. No vehicle
+
+",D. No vehicle,No vehicle
+192,"Which car is closer to the red brick building?
+A. Black Honda car
+B. Large silver car
+C. Black car
+D. None of the above
+
+",A. Black Honda car,Black Honda car
+193,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+194,"What color is the Honda car in the scene?
+A. Black
+B. Silver
+C. Red
+D. Blue
+
+",A. Black,Black
+195,"Which object is closer to the ego-vehicle, the white line or the green garbage can?
+A. White line
+B. Green garbage can
+C. Both are at the same distance from the ego-vehicle
+D. Cannot be determined
+
+",B. Green garbage can,Green garbage can
+196,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+197,"What is the color of the car with a black hood and trunk? 
+A. Silver 
+B. Black 
+C. Blue 
+D. Red 
+
+",A. Silver,Silver
+198,"Which object is closer to the ego-vehicle? 
+A. Black car
+B. White van
+C. Both objects are at the same distance from the ego-vehicle
+D. Cannot be determined from the given information
+
+",A. Black car,Both objects are at the same distance from the ego-vehicle
+199,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+200,"What type of vehicle is present in the scene? 
+A. Car
+B. Van
+C. Truck
+D. Motorcycle
+
+",A. Car,Car
+201,"Which object is closer to the white pickup truck? 
+A. The blue car with a white truck
+B. The large black car
+C. The red car with a silver car
+D. The red small car
+
+",B. The large black car,The blue car with a white truck
+202,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+203,"Question: What is the color of the car that is closest to the ego-vehicle?
+
+A. White
+B. Blue
+C. Black
+D. Red
+
+",A. White,White
+204,"Which object is closer to the gold Honda car? 
+A. Red and black motorcycle 
+B. Large yellow construction vehicle 
+C. Red car 
+D. Not a car 
+
+",C. Red car,Large yellow construction vehicle
+205,"How many red vehicles are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+206,"What type of vehicle is the gold Honda car? 
+A. Sedan 
+B. SUV 
+C. Hatchback 
+D. Convertible 
+
+",A. Sedan,Sedan
+207,"Which object is closer to the white van? 
+A. Green fence 
+B. Yellow bicycle 
+C. Red car 
+D. Fence 
+
+",Yellow bicycle,Yellow bicycle
+208,"How many green fences are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+209,"What is the color of the van in the scene?
+A. Green
+B. White
+C. Yellow
+D. Red
+
+",B. White,White
+210,"Which object is closest to the white van?
+A. Red and white delivery truck
+B. Black car
+C. Red car
+D. Police car
+
+",Red and white delivery truck,Red and white delivery truck
+211,"How many red cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+212,"Question: What type of vehicles are present in the scene?
+
+A. Delivery truck, white van, black car, police car
+B. Delivery truck, white van, red car, police car
+C. Delivery truck, white van, black car, red car
+D. Delivery truck, white van, police car, red car
+
+","C. Delivery truck, white van, black car, red car","Delivery truck, white van, black car, red car"
+213,"Which car is closest to the red van? 
+A. Black small car
+B. Black car
+C. Small white car
+D. Silver Nissan Rogue car
+
+",Small white car,Black small car
+214,"How many cars are there in the scene?
+A. 3
+B. 5
+C. 7
+D. 9
+
+",B. 5,7
+215,"What color is the van in the scene?
+A. Red
+B. Black
+C. White
+D. Silver
+
+",A. Red,Red
+216,"Which two objects are closest to each other? 
+A. Black car and silver car
+B. White car and white van
+C. White truck and white truck
+D. Black car and white van
+
+",A. Black car and silver car,Black car and silver car
+217,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",A. 1,1
+218,"Question: What type of vehicles are present in the scene?
+
+A. Cars and vans
+B. Cars and trucks
+C. Vans and trucks
+D. Cars, vans, and trucks
+
+","D. Cars, vans, and trucks","Cars, vans, and trucks"
+219,"Which object is closest to the large silver truck? 
+A. Black car
+B. Gray car
+C. Black truck
+D. Red pickup truck
+
+",Gray car,Black truck
+220,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+221,"What type of vehicle is the large silver object in the scene? 
+A. Car 
+B. Truck 
+C. Pickup truck 
+D. Red pickup truck 
+
+",B. Truck,Truck
+222,"Which object is closer to the white commercial truck with a blue trailer attached? 
+A. Yellow flatbed truck with a trailer attached
+B. Large truck
+C. Black car
+D. White SUV
+
+",Yellow flatbed truck with a trailer attached,Yellow flatbed truck with a trailer attached
+223,"How many yellow trucks are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,0
+224,"What type of vehicle is the white SUV? 
+A. Sedan 
+B. Sports car 
+C. SUV 
+D. Pickup truck 
+
+",C. SUV,SUV
+225,"Which two objects are closest to each other? 
+A. Black car and white car
+B. Black car and gray car
+C. White car and silver car
+D. Blue van and large white truck
+
+",A. Black car and white car,Black car and white car
+226,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,2
+227,"Question: What color is the car with the largest area in the scene?
+
+A. Black
+B. White
+C. Gray
+D. Silver
+
+",B. White,White
+228,"Which object is closer to the ego-vehicle? 
+A. Brown car
+B. Blue station wagon car with a white top
+C. Object with ID 3
+D. Object with ID 4
+
+",Brown car,Object with ID 3
+229,"How many brown cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+230,"What color is the car in the scene?
+A. Brown
+B. Blue
+C. White
+D. N/A
+
+",A. Brown,Brown
+231,"Which object is closest to the blue crane? 
+A. Red and silver truck 
+B. Green crane 
+C. Silver car 
+D. Black Honda sedan 
+
+",Green crane,Green crane
+232,"How many blue cranes are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,1
+233,"What color is the Honda sedan in the scene?
+A. Blue
+B. Red
+C. Green
+D. Black
+
+",D. Black,Black
+234,"Which object is closer to the ego-vehicle, the white car or the black car?
+A. White car
+B. Black car
+C. Both are at the same distance
+D. Cannot be determined
+
+",B. Black car,Black car
+235,"How many white cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,2
+236,"Question: What type of vehicle is described as a ""small red motorcycle"" in the scene?
+
+A. White car
+B. White truck
+C. Black car
+D. Red car
+
+",C. Black car,Black car
+237,"Which object is closer to the black car? 
+A. Silver car 
+B. Large green tractor 
+C. Silver SUV 
+D. Large white truck 
+
+",Silver car,Silver car
+238,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+239,"What type of vehicle is the large white truck? 
+A. Sedan 
+B. SUV 
+C. Truck 
+D. Tractor 
+
+",C. Truck,Truck
+240,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",B. Object 2,Object 1
+241,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+242,"What type of vehicles are present in the scene? 
+A. Semi-truck and black cars
+B. White and brown semi-truck and black cars
+C. White truck or vehicle and large white truck
+D. Black cars and white truck or vehicle
+
+",B. White and brown semi-truck and black cars,White and brown semi-truck and black cars
+243,"Which object is located to the left of the yellow taxi or transportation service car?
+A. Gray car
+B. Red car
+C. Truck
+D. Small car
+
+",Gray car,Red car
+244,"How many yellow taxis or transportation service cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+245,"What type of car is the yellow vehicle in the scene?
+A. Taxi
+B. Truck
+C. Gray car
+D. Red car
+
+",A. Taxi,Taxi
+246,"Which object is closer to the ego-vehicle? 
+A. The white car
+B. The green train
+C. The black car
+D. The bus stop
+
+",A. The white car,The black car
+247,"How many cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",C. 4,4
+248,"What is the color of the car with tinted windows? 
+A. White 
+B. Silver 
+C. Black 
+D. Dark brown 
+
+",B. Silver,Silver
+249,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Object 4
+
+",A. Object 1,Object 1
+250,"How many cars are present in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+251,"What type of object is located at coordinates (-12.0, -13.0)? 
+A. Car
+B. Truck
+C. Not a car
+D. No car information present
+
+",C. Not a car,Not a car
+252,"Which object is closest to the white truck? 
+A. Motorcycle 
+B. Building 
+C. Black car 
+D. Gray sedan 
+
+",Motorcycle,Black car
+253,"How many white trucks are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+254,"Question: What type of vehicles are present in the scene?
+
+A. Trucks and cars
+B. Trucks and motorcycles
+C. Cars and motorcycles
+D. Trucks, cars, and motorcycles
+
+","D. Trucks, cars, and motorcycles",Trucks and cars
+255,"Which object is closest to the silver car?
+A. Blue van
+B. Car
+C. White pickup truck
+D. Yellow truck
+
+",Blue van,White pickup truck
+256,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,4
+257,"Question: What type of vehicle is the silver car in the scene?
+
+A. Sedan
+B. SUV
+C. Hatchback
+D. Coupe
+
+",A. Sedan,Sedan
+258,"Which object is closer to the ego-vehicle? 
+A. Black car 
+B. Silver car 
+C. Tan-colored truck 
+D. White truck 
+
+",Silver car,Black car
+259,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+260,"What color is the car at the bottom left corner of the scene?
+A. Black
+B. Silver
+C. Tan-colored
+D. White
+
+",A. Black,Black
+261,"Which car is closer to the yellow car?
+A. Black car
+B. Silver car
+C. Car
+D. Green car
+
+",B. Silver car,Black car
+262,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+263,"Question: Which car in the scene has the largest area?
+
+A. Yellow car
+B. Black car
+C. Silver car
+D. Car
+
+",C. Silver car,Silver car
+264,"Which object is closest to the black car?
+A. Pair of headlights on a car
+B. White car
+C. Yellow car
+D. White van
+
+",Pair of headlights on a car,Yellow car
+265,"How many cars are present in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+266,"Question: What type of vehicles are present in the scene?
+
+A. Cars and vans
+B. Cars and trucks
+C. Cars, vans, and trucks
+D. Cars, vans, and headlights
+
+","C. Cars, vans, and trucks","Cars, vans, and trucks"
+267,"Question: What is the spatial relation between the black car and the white truck?
+
+A. The black car is to the left of the white truck.
+B. The black car is to the right of the white truck.
+C. The black car is above the white truck.
+D. The black car is below the white truck.
+
+",A. The black car is to the left of the white truck.,The black car is to the left of the white truck.
+268,"How many black cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",C. 4,4
+269,"What color is the sedan car in the scene?
+A. Black
+B. Blue
+C. White
+D. Silver
+
+",B. Blue,Blue
+270,"Which object is closest to the blue car?
+A. White SUV
+B. Large semi-truck
+C. White truck
+D. Large black car
+
+",A. White SUV,White truck
+271,"How many blue cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+272,"What type of vehicle is described as ""a black sedan car with a hatchback"" in the scene?
+
+A. Blue car
+B. White SUV
+C. Black sedan car with a hatchback
+D. White mail truck
+
+",C. Black sedan car with a hatchback,Black sedan car with a hatchback
+273,"Which object is closest to the white Comcast van?
+A. White and red truck
+B. Large white truck
+C. Black truck
+D. White van
+
+",White and red truck,White van
+274,"How many white trucks are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,3
+275,"What is the llm_message for object_id 7? 
+A. This is a white and red truck.
+B. This is a white Comcast van.
+C. This is a small dog.
+D. This is a red car.
+
+",C. This is a small dog.,This is a small dog.
+276,"Which object is closer to the ego-vehicle? 
+A. Object 1
+B. Object 2
+C. Object 3
+D. Cannot be determined
+
+",B. Object 2,Object 1
+277,"How many black cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+278,"What information can we gather about the objects in the scene? 
+A. All objects are cars.
+B. There is a black car in the scene.
+C. There is no car information available.
+D. There are two cars in the scene.
+
+",B. There is a black car in the scene.,There is no car information available.
+279,"Which object is closer to the ego-vehicle, the black SUV or the newer model car?
+A. Black SUV
+B. Newer model car
+C. Both are at the same distance from the ego-vehicle
+D. Cannot be determined from the given information
+
+",B. Newer model car,Newer model car
+280,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+281,"What color is the SUV in the scene?
+A. Black
+B. White
+C. Brown
+D. Grey
+
+",A. Black,Black
+282,"Which object is closest to the red bus?
+A. Truck
+B. Blue car
+C. White tree
+D. Large bus or coach
+
+",B. Blue car,Blue car
+283,"How many blue cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+284,"What type of vehicle is the object with ID 6? 
+A. Red bus
+B. Truck
+C. Blue car
+D. Large bus or coach
+
+",D. Large bus or coach,Large bus or coach
+285,"Which object is closer to the black sedan car? 
+A. Yellow backhoe 
+B. White truck 
+C. White van 
+D. Large digger or excavator 
+
+",Yellow backhoe,White truck
+286,"How many black sedan cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,1
+287,"Question: What type of vehicle is the object with ID 5?
+
+A. Sedan car
+B. Black sedan car
+C. Yellow backhoe
+D. Silver gray sedan car
+
+",C. Yellow backhoe,Yellow backhoe
+288,"Which object is closer to the ego-vehicle? 
+A. Car at (-45.0, -1.5)
+B. Car at (7.5, -32.5)
+C. Vehicle at (7.5, -24.5)
+D. Streetlight at (9.0, -16.5)
+
+","Car at (-45.0, -1.5)","Car at (-45.0, -1.5)"
+289,"How many cars are in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,2
+290,"Question: What type of object is located near the ego-vehicle?
+
+A. Car
+B. Vehicle
+C. Streetlight
+D. Bus
+
+",C. Streetlight,Car
+291,"Which object is closer to the ego-vehicle? 
+A. Black car
+B. No car is present
+C. Large truck
+D. Car
+
+",A. Black car,Black car
+292,"How many black cars are present in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+293,"What is the color of the car in the scene? 
+A. Black 
+B. White 
+C. Red 
+D. Blue 
+
+",A. Black,Black
+294,"Question: Which object is closer to the ego-vehicle?
+
+A. Object 1 (white small SUV or car)
+B. Object 2 (car)
+C. Object 3 (white SUV)
+D. Object 4 (white van)
+
+",A. Object 1 (white small SUV or car),Object 1 (white small SUV or car)
+295,"How many white SUVs are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,2
+296,"What type of vehicle is described as ""a white small SUV or car""? 
+A. SUV
+B. Sedan
+C. Hatchback
+D. Convertible
+
+",A. SUV,SUV
+297,"Which object is closest to the black car?
+A. Red car
+B. White car
+C. Bus
+D. Yellow and white car
+
+",Yellow and white car,Red car
+298,"How many red cars are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",B. 1,0
+299,"What is the color of the car that is closest to the ego-vehicle? 
+A. Red 
+B. White 
+C. Black 
+D. Yellow 
+
+",A. Red,Black

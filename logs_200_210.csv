@@ -1,0 +1,216 @@
+,Question,Correct Answer,ChatGPT Answer
+0,"Which object is closer to the large red semi-truck? 
+A. Large red and white train
+B. Large truck
+C. White small car
+D. Large concrete wall
+
+",White small car,White small car
+1,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+2,"Question: What is the llm_message for the object with the largest bev_area?
+
+A. This is a large red and white train.
+B. This is a large truck.
+C. This is a large concrete wall.
+D. This is a large building with a tall tower.
+
+",B. This is a large truck.,This is a large truck.
+3,"Which object is closer to the ego-vehicle? 
+A. White Nissan Rogue car
+B. Large white van
+C. Green and white SOU bus
+D. No car information present
+
+",Large white van,White Nissan Rogue car
+4,"How many white vehicles are present in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+5,"What type of vehicle is the object with ID 1? 
+A. Nissan Rogue car
+B. Large white van
+C. Green and white SOU bus
+D. No car information present
+
+",A. Nissan Rogue car,No car information present
+6,"Which object is closer to the ego-vehicle? 
+A. White bus
+B. White van
+C. Both objects are at the same distance from the ego-vehicle
+D. Cannot be determined from the given information
+
+",B. White van,Both objects are at the same distance from the ego-vehicle
+7,"How many white buses are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,0
+8,"What type of vehicles are present in the scene? 
+A. Bus and van 
+B. Car and truck 
+C. Bus and truck 
+D. Car and van 
+
+",A. Bus and van,Bus and van
+9,"Which car is closest to the black truck? 
+A. White car
+B. Red car
+C. White mail truck
+D. White minivan
+
+",A. White car,White mail truck
+10,"How many black cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",B. 2,2
+11,"What color is the mail truck in the scene?
+A. Black
+B. White
+C. Red
+D. The color is not mentioned in the description.
+
+",B. White,The color is not mentioned in the description.
+12,"Which object is closest to the white truck? 
+A. White sedan or SUV car
+B. White car
+C. White SUV
+D. Large white truck
+
+",White car,White sedan or SUV car
+13,"How many white cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",B. 3,4
+14,"Question: What type of vehicles are present in the scene?
+
+A. Sedan cars
+B. SUV cars
+C. Trucks
+D. All of the above
+
+",D. All of the above,All of the above
+15,"Which object is closer to the ego-vehicle, the black car or the white delivery truck and red truck?
+A. Black car
+B. White delivery truck and red truck
+C. Both are at the same distance
+D. Cannot be determined
+
+",A. Black car,Both are at the same distance
+16,"How many black cars are there in the scene?
+A. 2
+B. 3
+C. 4
+D. 5
+
+",B. 3,4
+17,"Question: What type of vehicle is described as a ""gray sedan""?
+
+A. Car
+B. Van
+C. Truck
+D. SUV
+
+",A. Car,Car
+18,"Which object is closer to the ego-vehicle, the yellow excavator or the white car?
+A. Yellow excavator
+B. White car
+C. Yellow bike
+D. Yellow bicycle
+
+",Yellow excavator,White car
+19,"How many yellow vehicles are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,0
+20,"What type of vehicle is the yellow excavator? 
+A. Car 
+B. Bike 
+C. Excavator 
+D. Bicycle 
+
+",C. Excavator,Excavator
+21,"Which object is closest to the blue car?
+A. Large white and gray truck
+B. Large truck with a trailer
+C. White minivan
+D. Yellow van
+
+",C. White minivan,White minivan
+22,"How many large trucks with trailers are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,0
+23,"Question: What is the color of the Toyota car in the scene?
+
+A. White
+B. Gray
+C. Blue
+D. Dark brown
+
+",D. Dark brown,White
+24,"Which object is closer to the ego-vehicle? 
+A. Staircase 
+B. Gray car 
+C. White car 
+D. Traffic light 
+
+",Staircase,White car
+25,"How many cars are there in the scene?
+A. 1
+B. 2
+C. 3
+D. 4
+
+",C. 3,3
+26,"Question: What is the purpose of the gray car in the scene?
+
+A. It is parked on the side of the road.
+B. It is driving towards the ego-vehicle.
+C. It is waiting at a traffic light.
+D. It is turning left at an intersection.
+
+",C. It is waiting at a traffic light.,It is parked on the side of the road.
+27,"Which object is closer to the ego-vehicle? 
+A. White and red bus
+B. Truck
+C. Large, white bus
+D. Cannot be determined
+
+",B. Truck,"Large, white bus"
+28,"How many buses are there in the scene?
+A. 0
+B. 1
+C. 2
+D. 3
+
+",C. 2,1
+29,"What type of vehicle is the object with ID 1? 
+A. Car
+B. Bus
+C. Truck
+D. Motorcycle
+
+",B. Bus,Bus
