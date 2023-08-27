@@ -16,7 +16,6 @@ import pathlib
 import datetime
 import copy
 import pdb
-import time
 import cv2
 # pdb.set_trace()
 import time
@@ -75,10 +74,10 @@ from nuscenes.utils.geometry_utils import view_points, box_in_image, BoxVisibili
 # ========================================
 #             InsructBLIP-2 Model Initialization
 # ========================================
-def init_instructblip2(model_name = "blip2_vicuna_instruct", model_type="vicuna7b", device="cuda:0"):
+def init_instructblip2(model_name = "blip2_vicuna_instruct", device="cuda:0"):
     model, vis_processors, _ = load_model_and_preprocess(
         name=model_name,
-        model_type=model_type,
+        model_type="vicuna7b",
         is_eval=True,
         device=device,
     )
@@ -154,7 +153,7 @@ def reset_conv(model_name = "llava"):
         roles = conv.roles
     return conv
 
-def llava_inference(image_processor, tokenizer, conv, user_message, image, device="cuda"):
+def llava_inference(model_llava, image_processor, tokenizer, conv, user_message, image, device="cuda"):
   image_tensor = image_processor.preprocess(image, return_tensors='pt')['pixel_values'].half().to(device)
   if model_llava.config.mm_use_im_start_end:
       inp = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + '\n' + user_message
@@ -264,45 +263,35 @@ def kClosest(points, target, K):
     closest_points = points[closest_indices]
     return closest_points.tolist()
 
-def get_image_projection(predictor, cam_left, cam_front, cam_right, cam_rear_left, cam_rear, cam_rear_right, arr):
-    """
-        arr: points to be back-projected: (K closest points)
-    """
+def get_image_projected_points(translation, rotation, camera_intrinsic, arr):
+    matched_points = None
+    flag = 0
+    min_dist = 1.0
+    barr = np.copy(arr)
+    ppc = LidarPointCloud(barr.T);
+    ppc.translate(translation)
+    ppc.rotate(rotation)
+    ddepths_img = ppc.points[2, :]
+    points = view_points(ppc.points[:3, :], np.array(camera_intrinsic), normalize=True)
+    
+    mask = np.ones(ddepths_img.shape[0], dtype=bool)
+    mask = np.logical_and(mask, ddepths_img > min_dist)
+    mask = np.logical_and(mask, points[0, :] > 1)
+    mask = np.logical_and(mask, points[0, :] < 1600 - 1)
+    mask = np.logical_and(mask, points[1, :] > 1)
+    mask = np.logical_and(mask, points[1, :] < 900 - 1)
+
+    if mask.sum() > 0:
+        flag = 1
+        points = points[:, mask]
+        ddepths_img = ddepths_img[mask]
+        matched_points = points
+    return flag, matched_points
+
+def get_image_projection(cam_left, cam_front, cam_right, cam_rear_left, cam_rear, cam_rear_right, arr):
     cam_imgs = [cam_left, cam_front, cam_right, cam_rear_left, cam_rear, cam_rear_right]
     cam_keys = ['CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_BACK_LEFT', 'CAM_BACK', 'CAM_BACK_RIGHT']
-    calibration_data = {
-        'CAM_FRONT_LEFT':{
-            'translation': [-1.57525595, -0.50051938, -1.50696033],
-            'rotation': [[ 0.82254604, -0.56868433, -0.00401771], [ 0.00647832,  0.01643407, -0.99984396], [ 0.56866162,  0.82239167,  0.01720189]],
-            'camera_intrinsic': [[1257.8625342125129, 0.0, 827.2410631095686], [0.0, 1257.8625342125129, 450.915498205774], [0.0, 0.0, 1.0]]
-        },
-        'CAM_FRONT':{
-            'translation': [-1.72200568, -0.00475453, -1.49491292],
-            'rotation': [[ 0.01026021, -0.99987258, -0.01222952], [ 0.00843345,  0.01231626, -0.99988859], [ 0.9999118 ,  0.01015593,  0.00855874]],
-            'camera_intrinsic': [[1252.8131021185304, 0.0, 826.588114781398], [0.0, 1252.8131021185304, 469.9846626224581], [0.0, 0.0, 1.0]]
-        },
-        'CAM_FRONT_RIGHT':{
-            'translation': [-1.58082566,  0.49907871, -1.51749368],
-            'rotation': [[-0.84397973, -0.53614138, -0.01583178], [ 0.01645551,  0.00362107, -0.99985804], [ 0.5361226 , -0.84412044,  0.00576637]],
-            'camera_intrinsic': [[1256.7485116440405, 0.0, 817.7887570959712], [0.0, 1256.7485116440403, 451.9541780095127], [0.0, 0.0, 1.0]]
-        },
-        'CAM_BACK_LEFT':{
-            'translation': [-1.035691  , -0.48479503, -1.59097015],
-            'rotation': [[ 0.94776036,  0.31896113,  0.00375564], [ 0.00866572, -0.0139763 , -0.99986478], [-0.31886551,  0.94766474, -0.01601021]],
-            'camera_intrinsic': [[1256.7414812095406, 0.0, 792.1125740759628], [0.0, 1256.7414812095406, 492.7757465151356], [0.0, 0.0, 1.0]]
-        },
-        'CAM_BACK':{
-            'translation': [-0.02832603, -0.00345137, -1.57910346],
-            'rotation': [[ 0.00242171,  0.99998907, -0.00400023], [-0.01675361, -0.00395911, -0.99985181], [-0.99985672,  0.00248837,  0.01674384]],
-            'camera_intrinsic': [[809.2209905677063, 0.0, 829.2196003259838], [0.0, 809.2209905677063, 481.77842384512485], [0.0, 0.0, 1.0]]
-        },
-        'CAM_BACK_RIGHT':{
-            'translation': [-1.0148781 ,  0.48056822, -1.56239545],
-            'rotation': [[-0.93477554,  0.35507456, -0.01080503], [ 0.01587584,  0.0113705 , -0.99980932], [-0.35488399, -0.93476883, -0.01626597]],
-            'camera_intrinsic': [[1259.5137405846733, 0.0, 807.2529053838625], [0.0, 1259.5137405846733, 501.19579884916527], [0.0, 0.0, 1.0]]
-        }
-    }
-
+    calibration_data = json.load(open("calibration.json"))
     min_dist = 1.0
     flag = 0
     cam_img = None
@@ -337,6 +326,12 @@ def get_image_projection(predictor, cam_left, cam_front, cam_right, cam_rear_lef
         # no point able to back-project, just use front cam
         matched_points = [150, 100] # hard-coded
         cam_img = cam_front
+    return cam_img, points, matched_points, matched_cam
+
+def extract_mask(predictor, cam_img, points):
+    """
+        arr: points to be back-projected: (K closest points)
+    """
     predictor.set_image(cam_img)
     input_point = np.array(points.astype(np.int32).T[:, :2])
     input_label = np.array([1 for i in range(len(points[0]))])
@@ -345,7 +340,7 @@ def get_image_projection(predictor, cam_left, cam_front, cam_right, cam_rear_lef
     img_copy = np.copy(cam_img)
     # img_copy[~idxs] = 0
     img_copy = crop_around_bounding_box(img_copy, masks[-1])
-    return img_copy, matched_points, matched_cam
+    return img_copy, masks
 
 device = torch.device('cuda:0')
 device2 = torch.device('cuda:0')
@@ -355,9 +350,18 @@ compute_losses = False
 data_path = "/raid/t1/scratch/vikrant.dewangan/v1.0-trainval"
 save_path = "/raid/t1/scratch/vikrant.dewangan/datas"
 
-# InstructBLIP-2
-model_instructblip, vis_processors = init_instructblip2(model_name="blip2_t5", model_type="pretrain_flant5xxl", device=device2)
-print("Initializaed Instruct-BLIP2")
+# LLaVa
+tokenizer, model_llava, image_processor, context_len = init_llava()
+print("Initializaed LLaVa")
+
+# # InstructBLIP-2
+# model_instructblip, vis_processors = init_instructblip2(device=device2)
+# print("Initializaed Instruct-BLIP2")
+
+# # MiniGPT-4
+# chat = init_minigp4()
+# print("Initializaed MiniGPT4")
+
 
 predictor = init_sam(device=device2)
 print("Initializaed SAM")
@@ -390,74 +394,78 @@ def eval(checkpoint_path, dataroot):
 
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=data_path, verbose=False)
     valdata = FuturePredictionDataset(nusc, 0, cfg)
+    valdata.indices = valdata.indices[16005:]
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
 
-    prev_scene_token = None
-    scene_cnt = 0
-    selected_scenes = [10]
     for index, batch in enumerate(tqdm(valloader)):
-        cur_scene_token = batch['scene_token'][0]
-        scene_cnt = scene_cnt + 1
-        if scene_cnt not in selected_scenes: 
-            if prev_scene_token != None:
-                if cur_scene_token == prev_scene_token:
-                    continue
-                else:
-                    scene_cnt = 0
-        prev_scene_token = cur_scene_token
+        image = batch['image']
+        intrinsics = batch['intrinsics']
+        extrinsics = batch['extrinsics']
+        future_egomotion = batch['future_egomotion']
+
+
         with torch.no_grad():
-            os.makedirs(os.path.join(save_path, str(cur_scene_token[0]) + "_" + "{0:0=6d}".format(index)), exist_ok=True)
+            output = model(
+                image.to(device), intrinsics.to(device), extrinsics.to(device), future_egomotion.to(device)
+            )
+
+            pred = torch.argmax(output['segmentation'], dim=2).squeeze()[2].cpu().numpy()
             arr = np.zeros((200, 200, 3))
             whe = np.where(batch['hdmap'].squeeze()[2,1] > 0)
             arr[whe[0], whe[1]] = np.array([255,255,255])
             # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
             # arr[whe[0], whe[1]] = np.array([255,255,0])
-            whe = np.where(batch['segmentation'].squeeze()[2] > 0)
+            whe = np.where(pred > 0)
             arr[whe[0], whe[1]] = np.array([0,0,255])
-            Image.fromarray(arr.astype(np.uint8)).save(os.path.join(save_path, str(cur_scene_token[0]) + "_" + "{0:0=6d}".format(index), "gt_bev.png"))
             barr = np.copy(arr)
+            varr = np.copy(arr)
 
             labels_allowed = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
             pts = []
             lidardata = batch['point_clouds'][2].squeeze()[2].numpy()
-            for ptind, pt in enumerate(lidardata.T):
-                if batch['point_clouds_labels'][2].squeeze()[2][ptind] in labels_allowed:
-                    pts.append(pt)
-            cts = np.copy(np.array(pts))
 
             bev_2d = np.logical_and(barr[:,:,2]>0,barr[:,:,0]==0)
             labels, pts_ = cv2.connectedComponents(bev_2d.astype(np.uint8))
             matched_imgs = []
-            try:
-                objects_json = json.load(open(os.path.join(save_path, str(cur_scene_token[0]) + "_" + "{0:0=6d}".format(index), "answer.json")))
-            except:
-                objects_json = []
-            for idx in range(1, labels + 1):
-                # Create a JSON object for each component
-                x, y = np.where(pts_ == idx)
 
-                bevy, bevx = np.where(pts_ == idx)
-                bevy = 200-bevy
-            
+            objects_json = []
+            objects_chatgpt_json = []
+            # front_ids = [9]
+            # right_ids = [7, 8, 10]
+
+            interesting_cars = [7]
+            for idx in tqdm(range(1, labels)):
+                # Create a JSON object for each component                    
+                x, y = np.where(pts_ == idx)
+                # y = 200-y
+
                 obj = {
                     "object_id": idx,
-                    "bev_centroid": [(np.mean(bevx).astype(np.int) - 100)/2, (np.mean(bevy).astype(np.int) - 100)/2],
+                    "bev_centroid": [(np.mean(x).astype(np.int) - 100)/2, (np.mean(y).astype(np.int) - 100)/2],
                     "matched_coords": [x.tolist(), y.tolist()],
                     "bev_area": len(x)/4,
                 }
+                
+                obj2 = {
+                    "object_id": idx,
+                    "bev_centroid": [(np.mean(x).astype(np.int) - 100)/2, (np.mean(y).astype(np.int) - 100)/2],
+                    "bev_area": len(x)/4,
+                }
+                
                 target_x, target_y = np.mean(x).astype(np.uint8), np.mean(y).astype(np.uint8)
                 # target = np.array([((obj['top'] + obj['bottom'])//2 - 100)/2, ((obj['left'] + obj['right'])//2 - 100)/2, 0])
                 target = np.array([(target_x - 100)/2, (target_y - 100)/2, 0])
                 min_ann_dist = 1e11
                 best_ann = {}
                 for ann_ind, anns in enumerate(batch["categories_map"][2]):
-                    dist = np.linalg.norm(anns[1] - np.array([target_y, target_x]))
+                    dist = np.linalg.norm(anns[1][0][:2] - np.array([(target_x - 100)/2, (target_y - 100)/2]))
                     annotation = anns[0]
                     if dist < min_ann_dist:
                         min_ann_dist = dist
                         best_ann = annotation
+                print(min_ann_dist, " min_ann_dist")
                 keys = best_ann.keys()
                 for key in keys:
                     if type(best_ann[key]) == torch.Tensor:
@@ -470,36 +478,251 @@ def eval(checkpoint_path, dataroot):
                             for listind in range(len(item)):
                                 if type(item[listind]) == torch.Tensor:
                                     best_ann[key][itemind][listind] = best_ann[key][itemind][listind].tolist()
-
                 obj["annotation"] = best_ann
-                
-                ppts = np.copy(cts)
-                try:
-                    arr = kClosest(ppts, target, 1)
-                except:
-                    arr = np.array([[target[0], target[1], 0, 0]])
+                pts = []
+                lidardata = batch['point_clouds'][2].squeeze()[2].numpy()
+                for ptind, pt in enumerate(lidardata.T):
+                    if batch['point_clouds_labels'][2].squeeze()[2][ptind] in labels_allowed:
+                        pts.append(pt)
 
-                img_cropped, matched_point, matched_cam = get_image_projection(predictor, 
-                                                                               batch['unnormalized_images'][0,2,0].numpy(), 
+                dts = np.array(pts)
+                bbox = batch["bottom_corners"][2][best_ann["token"][0]].squeeze().T.numpy()
+                print(np.mean(bbox, axis=0), target)
+                
+                # filter out points within bbox                
+                min_x = np.min(bbox[:, 0])
+                max_x = np.max(bbox[:, 0])
+                min_y = np.min(bbox[:, 1])
+                max_y = np.max(bbox[:, 1])
+                min_z = np.min(bbox[:, 2])
+                max_z = np.max(bbox[:, 2])
+                mask_x = (dts[:, 0] >= min_x) & (dts[:, 0] <= max_x)
+                mask_y = (dts[:, 1] >= min_y) & (dts[:, 1] <= max_y)
+                mask_z = (dts[:, 2] >= min_z) & (dts[:, 2] <= max_z)
+                mask = mask_x & mask_y & mask_z
+                indices = np.where(mask)
+                dts = dts[indices]
+                max_dist = max(abs(target_x - 100), abs(target_y - 100))
+                print("max_dist: ", max_dist)
+                elem = int(min(np.ceil(((max_dist + 50)/100) * (len(dts) - 1)), len(dts) - 1))
+                print("elem filter: ", elem, ", len: ", len(dts));
+                try:
+                    z_filter = sorted(dts[:, 2])[elem]
+                    minind = np.argmin(np.linalg.norm(dts[:, :3] - np.array([[0.0, 0.0, z_filter]]), axis=1))
+                    arr = np.expand_dims(dts[minind], axis=1).T
+                except:
+                    continue
+                calibration_data = json.load(open("calibration.json"))
+                cam_keys = ['CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_BACK_LEFT', 'CAM_BACK', 'CAM_BACK_RIGHT']
+                cam_img, points, matched_point, matched_cam = get_image_projection(batch['unnormalized_images'][0,2,0].numpy(), 
                                                                                batch['unnormalized_images'][0,2,1].numpy(), 
                                                                                batch['unnormalized_images'][0,2,2].numpy(), 
                                                                                batch['unnormalized_images'][0,2,3].numpy(), 
                                                                                batch['unnormalized_images'][0,2,4].numpy(), 
                                                                                batch['unnormalized_images'][0,2,5].numpy(), arr)
+                print(points, matched_cam, matched_point);
+                if matched_cam == None:
+                    continue
+                # Yes, the car is reversing and the rear park lights are on. This is indicated by the fact that the car is pulling into a parking space and the rear lights are illuminated. This is a common safety measure for drivers to ensure that other vehicles and pedestrians are aware of their presence and movements while reversing.
+                img_cropped, masks = extract_mask(predictor, cam_img, points)
                 matched_imgs.append(img_cropped)
-                
-                user_message = "Describe the central object. Elaborate on the details you see. Illustrate the content through a descriptive explanation."
-                llm_message_instructblip2 = instructblip2_inference(img_cropped, vis_processors, device2)
-                obj['llm_message_blip2'] = llm_message_instructblip2
+                cam_keys_mapping = {'CAM_FRONT_LEFT':0, 'CAM_FRONT':1, 'CAM_FRONT_RIGHT':2, 'CAM_BACK_LEFT':3, 'CAM_BACK':4, 'CAM_BACK_RIGHT':5}
+                user_message = "Given this image is of road scene, describe the central object in the image. Is there any text on the object? Which language is it? Explain."
+                conv = reset_conv()
+                llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
+
+                obj['llm_message_llava'] = llm_message_llava
+                obj2['llm_message_llava'] = llm_message_llava
+                img = batch['unnormalized_images'][0,2,cam_keys_mapping[matched_cam]]
+                darr = np.copy(barr)
+                plt.imshow(img)
+                plt.scatter(matched_point[0], matched_point[1], color='red')
+                plt.savefig("test.png")
+                plt.clf()
+                try:
+                    darr[x, y] = np.array([255, 0, 0])
+                    plt.imshow(darr/256)
+                    plt.savefig("testt_bev.png")
+                    plt.clf()
+                except:
+                    pass
+                plt.imshow(img_cropped)
+                plt.savefig("testt_cropped.png")
+                plt.clf()
+                if idx in interesting_cars:
+                    varr[x, y] = np.array([255, 0, 0])
+                    for j in range(6):
+                        flag, matched_points = get_image_projected_points(np.array(calibration_data[cam_keys[j]]['translation']), np.array(calibration_data[cam_keys[j]]['rotation']), calibration_data[cam_keys[j]]['camera_intrinsic'], arr)
+                        if not flag:
+                            continue
+                        img_cropped, masks = extract_mask(predictor, batch['unnormalized_images'][0,2,j].numpy(), matched_points)
+                        idxs = (masks[-1].astype(np.uint8) * 200) > 0
+                        batch['unnormalized_images'][0,2,j].numpy()[idxs] = batch['unnormalized_images'][0,2,j].numpy()[idxs] + (np.array([255, 0, 0]) - batch['unnormalized_images'][0,2,j].numpy()[idxs]) * 0.5
+
+                user_message = "Is the object facing towards or away from the camera? Reply in one word - towards or away."
+                conv = reset_conv()
+                llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
+                direction = 1
+                d1 = llm_message_llava.lower() == "towards"
+                d2 = np.mean(x) < 0
+                obj['travel_direction'] = {0:'same', 1: 'opposite'}[d1 ^ d2]
                 objects_json.append(obj)
+                objects_chatgpt_json.append(obj2)
 
-            for matched_img_ind, matched_img in enumerate(matched_imgs):
-                np.save(os.path.join(save_path, str(cur_scene_token[0]) + "_" + "{0:0=6d}".format(index), f"{matched_img_ind + 1}_matched_img.npy"), matched_img)
-    
-            with open(os.path.join(save_path, str(cur_scene_token[0]) + "_" + "{0:0=6d}".format(index), "answer.json"), "w") as f:
+            with open("answer_gt_anushka.json", "w") as f:
                 json.dump(objects_json, f, indent=4)
+            with open("answer_chatgpt_gt_anushka.json", "w") as f:
+                json.dump(objects_chatgpt_json, f, indent=4)
+            for matched_img_ind, matched_img in enumerate(matched_imgs):
+                np.save(os.path.join(f"imgs/qualitative_anushka/{matched_img_ind + 1}_matched_img.npy"), matched_img)
+                Image.fromarray(matched_img).save(os.path.join(f"imgs/qualitative_anushka/{matched_img_ind + 1}_matched_img.png"))
 
-            print("DONE SAVED");print();print();print();print();
+            fig = plt.figure(figsize=(7, 3))
+
+            gs = gridspec.GridSpec(6, 18)
+
+            ax0 = plt.subplot(gs[0:3, 0:6])
+            ax0.imshow(batch['unnormalized_images'][0,2,0].numpy())
+            ax0.axis('off')
+
+            ax1 = plt.subplot(gs[0:3, 6:12])
+            ax1.imshow(batch['unnormalized_images'][0,2,1].numpy())
+            ax1.axis('off')
+
+            ax2 = plt.subplot(gs[0:3, 12:18])
+            ax2.imshow(batch['unnormalized_images'][0,2,2].numpy())
+            ax2.axis('off')
+
+            ax3 = plt.subplot(gs[3:6, 0:6])
+            ax3.imshow(batch['unnormalized_images'][0,2,3].numpy())
+            ax3.axis('off')
+
+            ax4 = plt.subplot(gs[3:6, 6:12])
+            ax4.imshow(batch['unnormalized_images'][0,2,4].numpy())
+            ax4.axis('off')
+
+            ax5 = plt.subplot(gs[3:6, 12:18])
+            ax5.imshow(batch['unnormalized_images'][0,2,5].numpy())
+            ax5.axis('off')
+
+            plt.tight_layout()
+            plt.savefig("6images_anushka.png", dpi=300)
+
+            import pdb;pdb.set_trace()
+            Image.fromarray(varr.astype(np.uint8)).save("arr_anushka.png")
+            print(" DONE SAVED \n\n")
+            exit()
+            break
+            continue
+
+            pred = torch.argmax(output['segmentation'], dim=2).squeeze()[2].cpu().numpy()
+            arr = np.zeros((200, 200, 3))
+            whe = np.where(batch['hdmap'].squeeze()[2,1] > 0)
+            arr[whe[0], whe[1]] = np.array([255,255,255])
+            # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
+            # arr[whe[0], whe[1]] = np.array([255,255,0])
+            whe = np.where(pred > 0)
+            arr[whe[0], whe[1]] = np.array([0,0,255])
+            barr = np.copy(arr)
+            bev_2d = np.logical_and(barr[:,:,2]>0,barr[:,:,0]==0)
+            labels, pts_ = cv2.connectedComponents(bev_2d.astype(np.uint8))
+            matched_imgs = []
+
+            objects_json = []
+            for idx in tqdm(range(1, labels)):
+                # Create a JSON object for each component
+                y, x = np.where(pts_ == idx)
+                y = 200-y
+                obj = {
+                    "object_id": idx,
+                    "bev_centroid": [(np.mean(x).astype(np.int) - 100)/2, (np.mean(y).astype(np.int) - 100)/2],
+                    # "matched_coords": [x.tolist(), y.tolist()],
+                    "bev_area": len(x)/4,
+                }
+                target_x, target_y = np.mean(x).astype(np.uint8), np.mean(y).astype(np.uint8)
+                # target = np.array([((obj['top'] + obj['bottom'])//2 - 100)/2, ((obj['left'] + obj['right'])//2 - 100)/2, 0])
+                target = np.array([(target_x - 100)/2, (target_y - 100)/2, 0])
+                min_ann_dist = 1e11
+                best_ann = {}
+                for ann_ind, anns in enumerate(batch["categories_map"][2]):
+                    dist = np.linalg.norm(anns[1][0][:2] - np.array([(target_x - 100)/2, (target_y - 100)/2]))
+                    annotation = anns[0]
+                    if dist < min_ann_dist:
+                        min_ann_dist = dist
+                        best_ann = annotation
+                print(min_ann_dist, " min_ann_dist")
+                keys = best_ann.keys()
+                for key in keys:
+                    if type(best_ann[key]) == torch.Tensor:
+                        best_ann[key] = best_ann[key].tolist()
+                        continue
+                    for itemind, item in enumerate(best_ann[key]):
+                        if type(item) == torch.Tensor:
+                            best_ann[key][itemind] = item.tolist()
+                        elif type(item) == list:
+                            for listind in range(len(item)):
+                                if type(item[listind]) == torch.Tensor:
+                                    best_ann[key][itemind][listind] = best_ann[key][itemind][listind].tolist()
+                obj["annotation"] = best_ann
+                pts = []
+                lidardata = batch['point_clouds'][2].squeeze()[2].numpy()
+                for ptind, pt in enumerate(lidardata.T):
+                    if batch['point_clouds_labels'][2].squeeze()[2][ptind] in labels_allowed:
+                        pts.append(pt)
+
+                dts = np.array(pts)
+                bbox = batch["bottom_corners"][2][best_ann["token"][0]].squeeze().T.numpy()
+                print(np.mean(bbox, axis=0), target)
+                
+                # filter out points within bbox                
+                min_x = np.min(bbox[:, 0])
+                max_x = np.max(bbox[:, 0])
+                min_y = np.min(bbox[:, 1])
+                max_y = np.max(bbox[:, 1])
+                min_z = np.min(bbox[:, 2])
+                max_z = np.max(bbox[:, 2])
+                mask_x = (dts[:, 0] >= min_x) & (dts[:, 0] <= max_x)
+                mask_y = (dts[:, 1] >= min_y) & (dts[:, 1] <= max_y)
+                mask_z = (dts[:, 2] >= min_z) & (dts[:, 2] <= max_z)
+                mask = mask_x & mask_y & mask_z
+                indices = np.where(mask)
+                dts = dts[indices]
+                max_dist = max(abs(target_x - 100), abs(target_y - 100))
+                print("max_dist: ", max_dist)
+                elem = int(min(np.ceil(((max_dist + 50)/100) * (len(dts) - 1)), len(dts) - 1))
+                print("elem filter: ", elem, ", len: ", len(dts));
+                try:
+                    z_filter = sorted(dts[:, 2])[elem]
+                    minind = np.argmin(np.linalg.norm(dts[:, :3] - np.array([[0.0, 0.0, z_filter]]), axis=1))
+                    arr = np.expand_dims(dts[minind], axis=1).T
+                except:
+                    continue
+
+                cam_img, points, matched_point, matched_cam = get_image_projection(batch['unnormalized_images'][0,2,0].numpy(), 
+                                                                               batch['unnormalized_images'][0,2,1].numpy(), 
+                                                                               batch['unnormalized_images'][0,2,2].numpy(), 
+                                                                               batch['unnormalized_images'][0,2,3].numpy(), 
+                                                                               batch['unnormalized_images'][0,2,4].numpy(), 
+                                                                               batch['unnormalized_images'][0,2,5].numpy(), arr)
+                img_cropped = extract_mask(predictor, cam_img, points)
+                matched_imgs.append(img_cropped)
+                cam_keys_mapping = {'CAM_FRONT_LEFT':0, 'CAM_FRONT':1, 'CAM_FRONT_RIGHT':2, 'CAM_BACK_LEFT':3, 'CAM_BACK':4, 'CAM_BACK_RIGHT':5}
+                user_message = "Given this image is of road scene, describe the central object in the image."
+                # llm_message_minigpt4 = miniGPT4_inference(chat, img_cropped, user_message)
+                # llm_message_instructblip2 = instructblip2_inference(img_cropped, vis_processors, device2)
+                conv = reset_conv()
+                llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
+
+                # obj['llm_message'] = llm_message_instructblip2
+                # obj['llm_message_minigpt4'] = llm_message_minigpt4
+                obj['llm_message_llava'] = llm_message_llava
+                # obj['llm_message_instructblip2'] = llm_message_instructblip2
+                objects_json.append(obj)
+            with open("answer_pred.json", "w") as f:
+                json.dump(objects_json, f, indent=4)
+        break
+
+
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='STP3 evaluation')

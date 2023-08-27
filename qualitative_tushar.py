@@ -449,16 +449,16 @@ def eval(checkpoint_path, dataroot):
                     "object_id": idx,
                     "bev_centroid": [(np.mean(bevx).astype(np.int) - 100)/2, (np.mean(bevy).astype(np.int) - 100)/2],
                     "matched_coords": [x.tolist(), y.tolist()],
-                    "bev_area": len(x)/5,
+                    "bev_area": len(x)/4,
                 }
                 
                 obj2 = {
                     "object_id": idx,
                     "bev_centroid": [(np.mean(bevx).astype(np.int) - 100)/2, (np.mean(bevy).astype(np.int) - 100)/2],
-                    "bev_area": len(x)/5,
+                    "bev_area": len(x)/4,
                 }
                 
-                target_x, target_y = np.mean(x).astype(np.uint8), np.mean(y).astype(np.uint8)
+                target_x, target_y = np.mean(x).astype(np.int), np.mean(y).astype(np.int)
                 # target = np.array([((obj['top'] + obj['bottom'])//2 - 100)/2, ((obj['left'] + obj['right'])//2 - 100)/2, 0])
                 target = np.array([(target_x - 100)/2, (target_y - 100)/2, 0])
                 min_ann_dist = 1e11

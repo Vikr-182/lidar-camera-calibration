@@ -26,3 +26,5 @@ sample_cam_imgs/
 0/
 *_0*
 imgs/
+answer*.json
+answer_*.json

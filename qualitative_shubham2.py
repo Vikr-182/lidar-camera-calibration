@@ -394,7 +394,7 @@ def eval(checkpoint_path, dataroot):
 
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=data_path, verbose=False)
     valdata = FuturePredictionDataset(nusc, 0, cfg)
-    valdata.indices = valdata.indices[5193:]
+    valdata.indices = valdata.indices[18035:]
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
@@ -435,7 +435,7 @@ def eval(checkpoint_path, dataroot):
             # front_ids = [9]
             # right_ids = [7, 8, 10]
 
-            interesting_cars = [8]
+            interesting_cars = [3,6]
             for idx in tqdm(range(1, labels)):
                 # Create a JSON object for each component                    
                 x, y = np.where(pts_ == idx)
@@ -523,14 +523,26 @@ def eval(checkpoint_path, dataroot):
                 print(points, matched_cam, matched_point);
                 if matched_cam == None:
                     continue
+                if idx in interesting_cars:
+                    varr[x, y] = np.array([255, 0, 0])
+                    for j in range(6):
+                        flag, matched_points = get_image_projected_points(np.array(calibration_data[cam_keys[j]]['translation']), np.array(calibration_data[cam_keys[j]]['rotation']), calibration_data[cam_keys[j]]['camera_intrinsic'], arr)
+                        if not flag:
+                            continue
+                        img_cropped, masks = extract_mask(predictor, batch['unnormalized_images'][0,2,j].numpy(), matched_points)
+                        idxs = (masks[-1].astype(np.uint8) * 200) > 0
+                        batch['unnormalized_images'][0,2,j].numpy()[idxs] = batch['unnormalized_images'][0,2,j].numpy()[idxs] + (np.array([255, 0, 0]) - batch['unnormalized_images'][0,2,j].numpy()[idxs]) * 0.5
+                else:
+                    continue
+
                 # Yes, the car is reversing and the rear park lights are on. This is indicated by the fact that the car is pulling into a parking space and the rear lights are illuminated. This is a common safety measure for drivers to ensure that other vehicles and pedestrians are aware of their presence and movements while reversing.
                 img_cropped, masks = extract_mask(predictor, cam_img, points)
                 matched_imgs.append(img_cropped)
                 cam_keys_mapping = {'CAM_FRONT_LEFT':0, 'CAM_FRONT':1, 'CAM_FRONT_RIGHT':2, 'CAM_BACK_LEFT':3, 'CAM_BACK':4, 'CAM_BACK_RIGHT':5}
-                user_message = "Given this image is of road scene, describe the central object in the image."
+                user_message = "Given this image is of road scene, describe the central object in the image. Is the indicator on? Which direction is the indicator suggesting that vehicle will go? Answer in terms of direction, left or right."
                 conv = reset_conv()
                 llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
-
+                # import pdb; pdb.set_trace()
                 obj['llm_message_llava'] = llm_message_llava
                 obj2['llm_message_llava'] = llm_message_llava
                 img = batch['unnormalized_images'][0,2,cam_keys_mapping[matched_cam]]
@@ -549,18 +561,6 @@ def eval(checkpoint_path, dataroot):
                 plt.imshow(img_cropped)
                 plt.savefig("testt_cropped.png")
                 plt.clf()
-                if idx in [2]:
-                    varr[x, y] = np.array([255, 0, 0])
-                    for j in range(6):
-                        flag, matched_points = get_image_projected_points(np.array(calibration_data[cam_keys[j]]['translation']), np.array(calibration_data[cam_keys[j]]['rotation']), calibration_data[cam_keys[j]]['camera_intrinsic'], arr)
-                        if not flag:
-                            continue
-                        img_cropped, masks = extract_mask(predictor, batch['unnormalized_images'][0,2,j].numpy(), matched_points)
-                        idxs = (masks[-1].astype(np.uint8) * 200) > 0
-                        # newR = currentR + (255 - currentR) * tint_factor
-                        # newG = currentG + (255 - currentG) * tint_factor
-                        # newB = currentB + (255 - currentB) * tint_factor
-                        batch['unnormalized_images'][0,2,j].numpy()[idxs] = batch['unnormalized_images'][0,2,j].numpy()[idxs] + (np.array([255, 0, 0]) - batch['unnormalized_images'][0,2,j].numpy()[idxs]) * 0.5
 
                 user_message = "Is the object facing towards or away from the camera? Reply in one word - towards or away."
                 conv = reset_conv()
@@ -571,18 +571,50 @@ def eval(checkpoint_path, dataroot):
                 obj['travel_direction'] = {0:'same', 1: 'opposite'}[d1 ^ d2]
                 objects_json.append(obj)
                 objects_chatgpt_json.append(obj2)
-                import pdb; pdb.set_trace()
 
-            with open("answer_gt.json", "w") as f:
+            with open("answer_gt_shubham2.json", "w") as f:
                 json.dump(objects_json, f, indent=4)
-            with open("answer_chatgpt_gt.json", "w") as f:
+            with open("answer_chatgpt_gt_shubham2.json", "w") as f:
                 json.dump(objects_chatgpt_json, f, indent=4)
             for matched_img_ind, matched_img in enumerate(matched_imgs):
-                np.save(os.path.join(f"imgs/qualitative/{matched_img_ind + 1}_matched_img.npy"), matched_img)
-                Image.fromarray(matched_img).save(os.path.join(f"imgs/qualitative/{matched_img_ind + 1}_matched_img.png"))
+                np.save(os.path.join(f"imgs/qualitative_shubham2/{matched_img_ind + 1}_matched_img.npy"), matched_img)
+                Image.fromarray(matched_img).save(os.path.join(f"imgs/qualitative_shubham2/{matched_img_ind + 1}_matched_img.png"))
+
+            fig = plt.figure(figsize=(7, 3))
+
+            gs = gridspec.GridSpec(6, 18)
+
+            ax0 = plt.subplot(gs[0:3, 0:6])
+            ax0.imshow(batch['unnormalized_images'][0,2,0].numpy())
+            ax0.axis('off')
+
+            ax1 = plt.subplot(gs[0:3, 6:12])
+            ax1.imshow(batch['unnormalized_images'][0,2,1].numpy())
+            ax1.axis('off')
+
+            ax2 = plt.subplot(gs[0:3, 12:18])
+            ax2.imshow(batch['unnormalized_images'][0,2,2].numpy())
+            ax2.axis('off')
+
+            ax3 = plt.subplot(gs[3:6, 0:6])
+            ax3.imshow(batch['unnormalized_images'][0,2,3].numpy())
+            ax3.axis('off')
+
+            ax4 = plt.subplot(gs[3:6, 6:12])
+            ax4.imshow(batch['unnormalized_images'][0,2,4].numpy())
+            ax4.axis('off')
+
+            ax5 = plt.subplot(gs[3:6, 12:18])
+            ax5.imshow(batch['unnormalized_images'][0,2,5].numpy())
+            ax5.axis('off')
+
+            plt.tight_layout()
+            plt.savefig("6images_shubham.png", dpi=300)
+
+            Image.fromarray(varr.astype(np.uint8)).save("arr_shubham.png")
             import pdb;pdb.set_trace()
-            Image.fromarray(varr.astype(np.uint8)).save("arr.png")
             print(" DONE SAVED \n\n")
+            exit()
             break
             continue
 

@@ -19,7 +19,7 @@ import pdb
 import cv2
 # pdb.set_trace()
 import time
-from stp3.datas.NuscenesData import FuturePredictionDataset
+from stp3.datas.reducedNuscenesData import FuturePredictionDataset
 from stp3.trainer import TrainingModule
 from stp3.metrics import IntersectionOverUnion, PanopticMetric, PlanningMetric
 from stp3.utils.network import preprocess_batch, NormalizeInverse
@@ -318,10 +318,10 @@ def get_image_projection(predictor, cam_left, cam_front, cam_right, cam_rear_lef
 device = torch.device('cuda:0')
 device2 = torch.device('cuda:1')
 # LLaVa
-tokenizer, model_llava, image_processor, context_len = init_llava()
-print("Initializaed LLaVa")
+# tokenizer, model_llava, image_processor, context_len = init_llava()
+# print("Initializaed LLaVa")
 
-chat = init_minigp4()
+# chat = init_minigp4()
 
 predictor = init_sam(device=device2)
 print("Initializaed SAM")
@@ -363,10 +363,6 @@ def eval(checkpoint_path, dataroot):
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
-
-    prev_scene_token = None
-    scene_cnt = 0
-    selected_scenes = [10]
 
     for index, batch in enumerate(tqdm(valloader)):
         cur_scene_token = batch['scene_token'][0]
@@ -426,7 +422,7 @@ def eval(checkpoint_path, dataroot):
                     "object_id": idx,
                     "bev_centroid": [(np.mean(bevx).astype(np.int) - 100)/2, (np.mean(bevy).astype(np.int) - 100)/2],
                     "matched_coords": [x.tolist(), y.tolist()],
-                    "bev_area": len(x)/5,
+                    "bev_area": len(x)/4,
                 }
                 target_x, target_y = np.mean(x).astype(np.uint8), np.mean(y).astype(np.uint8)
                 # target = np.array([((obj['top'] + obj['bottom'])//2 - 100)/2, ((obj['left'] + obj['right'])//2 - 100)/2, 0])
@@ -435,13 +431,13 @@ def eval(checkpoint_path, dataroot):
                 min_ann_dist = 1e11
                 best_ann = {}
                 for ann_ind, anns in enumerate(batch["categories_map"][2]):
-                    print(anns[1], target, anns[0]['token'])
                     dist = np.linalg.norm(anns[1][0][:2] - np.array([(target_x - 100)/2, (target_y - 100)/2]))
                     annotation = anns[0]
                     if dist < min_ann_dist:
                         min_ann_dist = dist
                         best_ann = annotation
-                print(min_ann_dist, " min_ann_dist")
+                if min_ann_dist > 5:
+                    continue
                 keys = best_ann.keys()
                 for key in keys:
                     if type(best_ann[key]) == torch.Tensor:
@@ -455,7 +451,10 @@ def eval(checkpoint_path, dataroot):
                                 if type(item[listind]) == torch.Tensor:
                                     best_ann[key][itemind][listind] = best_ann[key][itemind][listind].tolist()
                 obj["annotation"] = best_ann
-                token_obj = best_ann["token"][0]
+                try:
+                    token_obj = best_ann["token"][0]
+                except:
+                    continue
                 tokens_obj = [token[0] for token in batch["panoptic_mappings_list"][2]]
                 save_token_ind = 0
                 for tokenind, token in enumerate(tokens_obj):
@@ -469,7 +468,6 @@ def eval(checkpoint_path, dataroot):
 
                 dts = np.array(pts)
                 bbox = batch["bottom_corners"][2][best_ann["token"][0]].squeeze().T.numpy()
-                print(np.mean(bbox, axis=0), target)
                 
                 # filter out points within bbox                
                 min_x = np.min(bbox[:, 0])
@@ -485,9 +483,7 @@ def eval(checkpoint_path, dataroot):
                 indices = np.where(mask)
                 dts = dts[indices]
                 max_dist = max(abs(target_x - 100), abs(target_y - 100))
-                print("max_dist: ", max_dist)
                 elem = int(min(np.ceil(((max_dist + 50)/100) * (len(dts) - 1)), len(dts) - 1))
-                print("elem filter: ", elem, ", len: ", len(dts));
                 try:
                     z_filter = sorted(dts[:, 2])[elem]
                     minind = np.argmin(np.linalg.norm(dts[:, :3] - np.array([[0.0, 0.0, z_filter]]), axis=1))
@@ -502,13 +498,14 @@ def eval(checkpoint_path, dataroot):
                                                                                batch['unnormalized_images'][0,2,3].numpy(), 
                                                                                batch['unnormalized_images'][0,2,4].numpy(), 
                                                                                batch['unnormalized_images'][0,2,5].numpy(), arr);
-
+                if matched_cam == None:
+                    continue
                 matched_imgs.append(img_cropped)
                 user_message = "Given this image is of road scene, give detailed description of the central object in the image."
                 # llm_message = miniGPT4_inference(chat, img_cropped, user_message);
-                obj['matched_point_cam'] = matched_point.tolist()
-                obj['matched_cam'] = matched_cam
-                obj['bev_coords'] = [x.astype(np.int32).tolist(), y.astype(np.int32).tolist()]
+                # obj['matched_point_cam'] = matched_point.tolist()
+                # obj['matched_cam'] = matched_cam
+                # obj['bev_coords'] = [x.astype(np.int32).tolist(), y.astype(np.int32).tolist()]
 
                 # conv = reset_conv();
                 # llm_message = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
