@@ -394,19 +394,22 @@ def eval(checkpoint_path, dataroot):
 
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=data_path, verbose=False)
     valdata = FuturePredictionDataset(nusc, 0, cfg)
-    valdata.indices = valdata.indices[16005:]
+    valdata.indices = valdata.indices[3047:]
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
 
+    print("***")
+
     for index, batch in enumerate(tqdm(valloader)):
+        print(index)
         image = batch['image']
         intrinsics = batch['intrinsics']
         extrinsics = batch['extrinsics']
         future_egomotion = batch['future_egomotion']
 
-
         with torch.no_grad():
+
             output = model(
                 image.to(device), intrinsics.to(device), extrinsics.to(device), future_egomotion.to(device)
             )
@@ -435,7 +438,7 @@ def eval(checkpoint_path, dataroot):
             # front_ids = [9]
             # right_ids = [7, 8, 10]
 
-            interesting_cars = [7]
+            interesting_cars = [6]
             for idx in tqdm(range(1, labels)):
                 # Create a JSON object for each component                    
                 x, y = np.where(pts_ == idx)
@@ -557,7 +560,8 @@ def eval(checkpoint_path, dataroot):
                             continue
                         img_cropped, masks = extract_mask(predictor, batch['unnormalized_images'][0,2,j].numpy(), matched_points)
                         idxs = (masks[-1].astype(np.uint8) * 200) > 0
-                        batch['unnormalized_images'][0,2,j].numpy()[idxs] = batch['unnormalized_images'][0,2,j].numpy()[idxs] + (np.array([255, 0, 0]) - batch['unnormalized_images'][0,2,j].numpy()[idxs]) * 0.5
+                        imgg = batch['unnormalized_images'][0,2,j].numpy()
+                        imgg[idxs] = imgg[idxs] + (np.array([255, 0, 0]) - imgg[idxs]) * 0.5
 
                 user_message = "Is the object facing towards or away from the camera? Reply in one word - towards or away."
                 conv = reset_conv()
@@ -568,6 +572,7 @@ def eval(checkpoint_path, dataroot):
                 obj['travel_direction'] = {0:'same', 1: 'opposite'}[d1 ^ d2]
                 objects_json.append(obj)
                 objects_chatgpt_json.append(obj2)
+
 
             with open("answer_gt_anushka.json", "w") as f:
                 json.dump(objects_json, f, indent=4)
@@ -608,9 +613,10 @@ def eval(checkpoint_path, dataroot):
             plt.tight_layout()
             plt.savefig("6images_anushka.png", dpi=300)
 
-            import pdb;pdb.set_trace()
+            # import pdb;pdb.set_trace()
             Image.fromarray(varr.astype(np.uint8)).save("arr_anushka.png")
             print(" DONE SAVED \n\n")
+            import pdb; pdb.set_trace()
             exit()
             break
             continue

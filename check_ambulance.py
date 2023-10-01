@@ -94,7 +94,7 @@ def eval(checkpoint_path, dataroot):
     cfg.N_FUTURE_FRAMES = 1  # how many time steps into the future to predict
 
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=data_path, verbose=False)
-    valdata = FuturePredictionDataset(nusc, 1, cfg)
+    valdata = FuturePredictionDataset(nusc, 0, cfg)
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
@@ -103,6 +103,66 @@ def eval(checkpoint_path, dataroot):
         for objs in batch['categories_map'][0]:
             if "emergency" in objs[0]['category_name'][0]:
                 print(index)
+                arr = np.zeros((200, 200, 3))
+                whe = np.where(batch['hdmap'].squeeze()[1] > 0)
+                arr[whe[0], whe[1]] = np.array([255,255,255])
+                # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
+                # arr[whe[0], whe[1]] = np.array([255,255,0])
+                whe = np.where(batch['segmentation'].squeeze() > 0)
+                arr[whe[0], whe[1]] = np.array([0,0,255])
+                barr = np.copy(arr)
+
+                bev_2d = np.logical_and(barr[:,:,2]>0,barr[:,:,0]==0)
+                labels, pts_ = cv2.connectedComponents(bev_2d.astype(np.uint8))
+
+                fig = plt.figure(figsize=(10, 3))
+
+                gs = gridspec.GridSpec(6, 24)
+
+                ax0 = plt.subplot(gs[0:3, 0:6])
+                ax0.imshow(batch['unnormalized_images'][0,0,0].numpy())
+                ax0.axis('off')
+
+                ax1 = plt.subplot(gs[0:3, 6:12])
+                ax1.imshow(batch['unnormalized_images'][0,0,1].numpy())
+                ax1.axis('off')
+
+                ax2 = plt.subplot(gs[0:3, 12:18])
+                ax2.imshow(batch['unnormalized_images'][0,0,2].numpy())
+                ax2.axis('off')
+
+                ax3 = plt.subplot(gs[3:6, 0:6])
+                ax3.imshow(batch['unnormalized_images'][0,0,3].numpy())
+                ax3.axis('off')
+
+                ax4 = plt.subplot(gs[3:6, 6:12])
+                ax4.imshow(batch['unnormalized_images'][0,0,4].numpy())
+                ax4.axis('off')
+
+                ax5 = plt.subplot(gs[3:6, 12:18])
+                ax5.imshow(batch['unnormalized_images'][0,0,5].numpy())
+                ax5.axis('off')
+
+                plt.tight_layout()
+                plt.text(200, 250, "{0:0=6d}".format(index), fontsize=12)
+
+                arr = np.zeros((200, 200, 3))
+                whe = np.where(batch['hdmap'].squeeze()[1] > 0)
+                arr[whe[0], whe[1]] = np.array([255,255,255])
+                # whe = np.where(batch['hdmap'].squeeze()[2,0] > 0)
+                # arr[whe[0], whe[1]] = np.array([255,255,0])
+                whe = np.where(batch['segmentation'].squeeze() > 0)
+                arr[whe[0], whe[1]] = np.array([0,0,255])
+
+                ax6 = plt.subplot(gs[0:6, 18:24])
+                ax6.imshow(arr)
+                ax6.axis('off')
+                plt.savefig('sample_cam_imgs/'+"{0:0=6d}".format(index)+'.png', dpi=300)        
+                plt.savefig("arr.png", dpi=200)
+
+                import pdb; pdb.set_trace()
+                break
+        continue
         arr = np.zeros((200, 200, 3))
         whe = np.where(batch['hdmap'].squeeze()[1] > 0)
         arr[whe[0], whe[1]] = np.array([255,255,255])
@@ -153,55 +213,12 @@ def eval(checkpoint_path, dataroot):
         # arr[whe[0], whe[1]] = np.array([255,255,0])
         whe = np.where(batch['segmentation'].squeeze() > 0)
         arr[whe[0], whe[1]] = np.array([0,0,255])
-        for idx in range(1, labels + 1):
-            # Create a JSON object for each component
-            x, y = np.where(pts_ == idx)
-
-            bevy, bevx = np.where(pts_ == idx)
-            bevy = 200-bevy
-        
-            obj = {
-                "object_id": idx,
-                "bev_centroid": [(np.mean(bevx).astype(np.int) - 100)/2, (np.mean(bevy).astype(np.int) - 100)/2],
-                "matched_coords": [x.tolist(), y.tolist()],
-                "bev_area": len(x)/4,
-            }
-            target_x, target_y = np.mean(x).astype(np.uint8), np.mean(y).astype(np.uint8)
-            # target = np.array([((obj['top'] + obj['bottom'])//2 - 100)/2, ((obj['left'] + obj['right'])//2 - 100)/2, 0])
-            target = np.array([(target_x - 100)/2, (target_y - 100)/2, 0])
-            min_ann_dist = 1e11
-            best_ann = {}
-            for ann_ind, anns in enumerate(batch["categories_map"][0]):
-                dist = np.linalg.norm(anns[1][0][:2] - np.array([(target_x - 100)/2, (target_y - 100)/2]))
-                annotation = anns[0]
-                if dist < min_ann_dist:
-                    min_ann_dist = dist
-                    best_ann = annotation
-            print(min_ann_dist)
-            keys = best_ann.keys()
-            for key in keys:
-                if type(best_ann[key]) == torch.Tensor:
-                    best_ann[key] = best_ann[key].tolist()
-                    continue
-                for itemind, item in enumerate(best_ann[key]):
-                    if type(item) == torch.Tensor:
-                        best_ann[key][itemind] = item.tolist()
-                    elif type(item) == list:
-                        for listind in range(len(item)):
-                            if type(item[listind]) == torch.Tensor:
-                                best_ann[key][itemind][listind] = best_ann[key][itemind][listind].tolist()
-            obj["annotation"] = best_ann
-            if "police" in best_ann["category_name"][0]:
-                import pdb; pdb.set_trace()
-                print(x, y)
-                print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
-                arr[x, y] = np.array([255, 0, 0])
 
         ax6 = plt.subplot(gs[0:6, 18:24])
         ax6.imshow(arr)
         ax6.axis('off')
         plt.savefig('sample_cam_imgs/'+"{0:0=6d}".format(index)+'.png', dpi=300)        
-        plt.savefig("arr.png")
+        plt.savefig("arr.png", dpi=200)
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='STP3 evaluation')

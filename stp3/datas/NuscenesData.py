@@ -117,12 +117,16 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         else:
             raise NotImplementedError
 
+
         self.sequence_length = cfg.TIME_RECEPTIVE_FIELD + cfg.N_FUTURE_FRAMES
         self.receptive_field = cfg.TIME_RECEPTIVE_FIELD
 
+        self.emergency_ixes = []
         self.scenes = self.get_scenes()
         self.ixes = self.prepro()
         self.indices = self.get_indices()
+
+        # import pdb; pdb.set_trace()
 
         # Image resizing and cropping
         self.augmentation_parameters = self.get_resizing_and_cropping_parameters()
@@ -187,14 +191,25 @@ class FuturePredictionDataset(torch.utils.data.Dataset):
         # sort by scene, timestamp (only to make chronological viz easier)
         samples.sort(key=lambda x: (x['scene_token'], x['timestamp']))
 
+        for sample in samples:
+            for ann in sample['anns']:
+                category = self.nusc.get("sample_annotation", ann)["category_name"]
+                if "police" in category:
+                    self.emergency_ixes.append(sample)
+                    break
+        self.ixes = self.emergency_ixes
+
         return samples
 
     def get_indices(self):
         indices = []
         for index in range(len(self.ixes)):
+            # print(index, end=' ')
             is_valid_data = True
             previous_rec = None
             current_indices = []
+            # if self.ixes[index] not in self.emergency_ixes:
+            #     continue
             for t in range(self.sequence_length):
                 index_t = index + t
                 # Going over the dataset size limit.

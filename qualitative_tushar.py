@@ -394,7 +394,7 @@ def eval(checkpoint_path, dataroot):
 
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=data_path, verbose=False)
     valdata = FuturePredictionDataset(nusc, 0, cfg)
-    valdata.indices = valdata.indices[15105:]
+    valdata.indices = valdata.indices[13650:]
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
@@ -418,6 +418,11 @@ def eval(checkpoint_path, dataroot):
             # arr[whe[0], whe[1]] = np.array([255,255,0])
             whe = np.where(batch['segmentation'].squeeze()[2] > 0)
             arr[whe[0], whe[1]] = np.array([0,0,255])
+            whe = np.where(batch['pedestrian'].squeeze()[2] > 0)
+            arr[whe[0], whe[1]] = np.array([0,0,255])
+            
+            import pdb; pdb.set_trace()
+            
             # Image.fromarray(arr.astype(np.uint8)).save(os.path.join(save_path, str(cur_scene_token[0]) + "_" + "{0:0=6d}".format(index), "gt_bev.png"))
             barr = np.copy(arr)
             varr = np.copy(arr)
@@ -430,14 +435,14 @@ def eval(checkpoint_path, dataroot):
             labels, pts_ = cv2.connectedComponents(bev_2d.astype(np.uint8))
             matched_imgs = []
 
-            # import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
 
             objects_json = []
             objects_chatgpt_json = []
             # front_ids = [9]
             # right_ids = [7, 8, 10]
 
-            parking_cars = [8]
+            interesting_cars = [16]
             for idx in tqdm(range(1, labels)):
                 # Create a JSON object for each component                    
                 x, y = np.where(pts_ == idx)
@@ -516,6 +521,8 @@ def eval(checkpoint_path, dataroot):
                     arr = np.expand_dims(dts[minind], axis=1).T
                 except:
                     continue
+                calibration_data = json.load(open("calibration.json"))
+                cam_keys = ['CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_BACK_LEFT', 'CAM_BACK', 'CAM_BACK_RIGHT']
                 cam_img, points, matched_point, matched_cam = get_image_projection(batch['unnormalized_images'][0,2,0].numpy(), 
                                                                                batch['unnormalized_images'][0,2,1].numpy(), 
                                                                                batch['unnormalized_images'][0,2,2].numpy(), 
@@ -540,6 +547,16 @@ def eval(checkpoint_path, dataroot):
                 obj2['llm_message_llava'] = llm_message_llava
                 objects_chatgpt_json.append(obj2)
 
+                if idx in interesting_cars:
+                    varr[x, y] = np.array([255, 0, 0])
+                    for j in range(6):
+                        flag, matched_points = get_image_projected_points(np.array(calibration_data[cam_keys[j]]['translation']), np.array(calibration_data[cam_keys[j]]['rotation']), calibration_data[cam_keys[j]]['camera_intrinsic'], arr)
+                        if not flag:
+                            continue
+                        img_cropped, masks = extract_mask(predictor, batch['unnormalized_images'][0,2,j].numpy(), matched_points)
+                        idxs = (masks[-1].astype(np.uint8) * 200) > 0
+                        batch['unnormalized_images'][0,2,j].numpy()[idxs] = batch['unnormalized_images'][0,2,j].numpy()[idxs] + (np.array([255, 0, 0]) - batch['unnormalized_images'][0,2,j].numpy()[idxs]) * 0.5
+
                 # print(idx)
                 # img = batch['unnormalized_images'][0,2,cam_keys_mapping[matched_cam]]
                 # plt.imshow(img)
@@ -550,18 +567,49 @@ def eval(checkpoint_path, dataroot):
                 # plt.savefig("testt_cropped.png")
                 # plt.clf()
                 # import pdb; pdb.set_trace()
-
-            with open("answer_gt.json", "w") as f:
+            
+            with open("answer_gt_tushar.json", "w") as f:
                 json.dump(objects_json, f, indent=4)
-            with open("answer_chatgpt_gt.json", "w") as f:
+            with open("answer_chatgpt_gt_tushar.json", "w") as f:
                 json.dump(objects_chatgpt_json, f, indent=4)
             for matched_img_ind, matched_img in enumerate(matched_imgs):
-                np.save(os.path.join(f"imgs/qualitative/{matched_img_ind + 1}_matched_img.npy"), matched_img)
-                Image.fromarray(matched_img).save(os.path.join(f"imgs/qualitative/{matched_img_ind + 1}_matched_img.png"))
-            import pdb;pdb.set_trace()
-            Image.fromarray(varr.astype(np.uint8)).save("arr.png")
+                np.save(os.path.join(f"imgs/qualitative_tushar/{matched_img_ind + 1}_matched_img.npy"), matched_img)
+                Image.fromarray(matched_img).save(os.path.join(f"imgs/qualitative_tushar/{matched_img_ind + 1}_matched_img.png"))
+
+            fig = plt.figure(figsize=(7, 3))
+
+            gs = gridspec.GridSpec(6, 18)
+
+            ax0 = plt.subplot(gs[0:3, 0:6])
+            ax0.imshow(batch['unnormalized_images'][0,2,0].numpy())
+            ax0.axis('off')
+
+            ax1 = plt.subplot(gs[0:3, 6:12])
+            ax1.imshow(batch['unnormalized_images'][0,2,1].numpy())
+            ax1.axis('off')
+
+            ax2 = plt.subplot(gs[0:3, 12:18])
+            ax2.imshow(batch['unnormalized_images'][0,2,2].numpy())
+            ax2.axis('off')
+
+            ax3 = plt.subplot(gs[3:6, 0:6])
+            ax3.imshow(batch['unnormalized_images'][0,2,3].numpy())
+            ax3.axis('off')
+
+            ax4 = plt.subplot(gs[3:6, 6:12])
+            ax4.imshow(batch['unnormalized_images'][0,2,4].numpy())
+            ax4.axis('off')
+
+            ax5 = plt.subplot(gs[3:6, 12:18])
+            ax5.imshow(batch['unnormalized_images'][0,2,5].numpy())
+            ax5.axis('off')
+
+            plt.tight_layout()
+            plt.savefig("6images_tushar.png", dpi=300)
+
+            Image.fromarray(varr.astype(np.uint8)).save("arr_tushar.png")
             print(" DONE SAVED \n\n")
-            break
+            exit()
             
 
 

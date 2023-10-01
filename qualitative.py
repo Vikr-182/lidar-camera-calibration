@@ -199,7 +199,7 @@ def miniGPT4_inference(chat, img_cropped, user_message):
     )[0]
     return llm_message
 
-def instructblip2_inference(img_cropped, vis_processors, device="cuda", user_message="describe the central object in the scene."):
+def instructblip2_inference(model_instructblip, img_cropped, vis_processors, device="cuda", user_message="describe the central object in the scene."):
     image = vis_processors["eval"](Image.fromarray(img_cropped)).unsqueeze(0).to(device)
 
     samples = {
@@ -394,7 +394,7 @@ def eval(checkpoint_path, dataroot):
 
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=data_path, verbose=False)
     valdata = FuturePredictionDataset(nusc, 0, cfg)
-    valdata.indices = valdata.indices[5193:]
+    valdata.indices = valdata.indices[1811:]
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
@@ -435,7 +435,7 @@ def eval(checkpoint_path, dataroot):
             # front_ids = [9]
             # right_ids = [7, 8, 10]
 
-            interesting_cars = [8]
+            interesting_cars = [21]
             for idx in tqdm(range(1, labels)):
                 # Create a JSON object for each component                    
                 x, y = np.where(pts_ == idx)

@@ -1,9 +1,8 @@
 import torch
 import torch.utils.data
 from nuscenes.nuscenes import NuScenes
-from stp3.datas.NuscenesData import FuturePredictionDataset
+from stp3.datas.trainNuscenesData import FuturePredictionDataset
 from stp3.datas.CarlaData import CarlaDataset
-
 
 def prepare_dataloaders(cfg, return_dataset=False):
     if cfg.DATASET.NAME == 'nuscenes':
@@ -20,10 +19,10 @@ def prepare_dataloaders(cfg, return_dataset=False):
 
         nworkers = cfg.N_WORKERS
         trainloader = torch.utils.data.DataLoader(
-            traindata, batch_size=1, shuffle=False, num_workers=0, pin_memory=True, drop_last=True
+            traindata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=10, pin_memory=True, drop_last=True
         )
         valloader = torch.utils.data.DataLoader(
-            valdata, batch_size=1, shuffle=True, num_workers=0, pin_memory=True, drop_last=False
+            valdata, batch_size=cfg.BATCHSIZE, shuffle=True, num_workers=10, pin_memory=True, drop_last=False
         )
     elif cfg.DATASET.NAME == 'carla':
         dataroot = cfg.DATASET.DATAROOT

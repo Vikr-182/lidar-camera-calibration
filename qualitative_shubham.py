@@ -71,56 +71,56 @@ from lavis.models import load_model_and_preprocess
 from nuscenes.utils.data_classes import PointCloud, LidarPointCloud, RadarPointCloud, Box
 from nuscenes.utils.geometry_utils import view_points, box_in_image, BoxVisibility, transform_matrix
 
-# ========================================
-#             InsructBLIP-2 Model Initialization
-# ========================================
-def init_instructblip2(model_name = "blip2_vicuna_instruct", device="cuda:0"):
-    model, vis_processors, _ = load_model_and_preprocess(
-        name=model_name,
-        model_type="vicuna7b",
-        is_eval=True,
-        device=device,
-    )
-    return model, vis_processors
-# ========================================
+# # ========================================
+# #             InsructBLIP-2 Model Initialization
+# # ========================================
+# def init_instructblip2(model_name = "blip2_vicuna_instruct", device="cuda:0"):
+#     model, vis_processors, _ = load_model_and_preprocess(
+#         name=model_name,
+#         model_type="vicuna7b",
+#         is_eval=True,
+#         device=device,
+#     )
+#     return model, vis_processors
+# # ========================================
 
-# ========================================
-#             LLaVa Model Initialization
-# ========================================
-def init_llava(model_name = "llava", model_path = "/raid/t1/scratch/vikrant.dewangan/LLaVA/ckpt-old/", model_base=None, load_8bit=True, load_4bit=False):
-    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, model_base, model_name, load_8bit, load_4bit)
-    return tokenizer, model, image_processor, context_len
-# ========================================
+# # ========================================
+# #             LLaVa Model Initialization
+# # ========================================
+# def init_llava(model_name = "llava", model_path = "/raid/t1/scratch/vikrant.dewangan/LLaVA/ckpt-old/", model_base=None, load_8bit=True, load_4bit=False):
+#     tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, model_base, model_name, load_8bit, load_4bit)
+#     return tokenizer, model, image_processor, context_len
+# # ========================================
 
-# ========================================
-#             MiniGPT4 Initialization
-# ========================================
-def init_minigp4():
-    parser = argparse.ArgumentParser(description="Demo")
-    parser.add_argument("--cfg-path", default="eval_configs/minigpt4_eval.yaml", help="path to configuration file.")
-    parser.add_argument("--gpu-id", type=int, default=0, help="specify the gpu to load the model.")
-    parser.add_argument("--sam-checkpoint", type=str, default="sam_vit_h_4b8939.pth", help="path to sam weights.")
-    parser.add_argument(
-        "--options",
-        nargs="+",
-        help="override some settings in the used config, the key-value pair "
-        "in xxx=yyy format will be merged into config file (deprecate), "
-        "change to --cfg-options instead.",
-    )
-    args = parser.parse_args()
-    print('Initializing Chat')
-    cfg = Config(args)
+# # ========================================
+# #             MiniGPT4 Initialization
+# # ========================================
+# def init_minigp4():
+#     parser = argparse.ArgumentParser(description="Demo")
+#     parser.add_argument("--cfg-path", default="eval_configs/minigpt4_eval.yaml", help="path to configuration file.")
+#     parser.add_argument("--gpu-id", type=int, default=0, help="specify the gpu to load the model.")
+#     parser.add_argument("--sam-checkpoint", type=str, default="sam_vit_h_4b8939.pth", help="path to sam weights.")
+#     parser.add_argument(
+#         "--options",
+#         nargs="+",
+#         help="override some settings in the used config, the key-value pair "
+#         "in xxx=yyy format will be merged into config file (deprecate), "
+#         "change to --cfg-options instead.",
+#     )
+#     args = parser.parse_args()
+#     print('Initializing Chat')
+#     cfg = Config(args)
 
-    model_config = cfg.model_cfg
-    model_config.device_8bit = args.gpu_id
-    model_cls = registry.get_model_class(model_config.arch)
-    model = model_cls.from_config(model_config).to('cuda:{}'.format(args.gpu_id))
+#     model_config = cfg.model_cfg
+#     model_config.device_8bit = args.gpu_id
+#     model_cls = registry.get_model_class(model_config.arch)
+#     model = model_cls.from_config(model_config).to('cuda:{}'.format(args.gpu_id))
 
-    vis_processor_cfg = cfg.datasets_cfg.cc_sbu_align.vis_processor.train
-    vis_processor = registry.get_processor_class(vis_processor_cfg.name).from_config(vis_processor_cfg)
-    chat = Chat(model, vis_processor, device='cuda:{}'.format(args.gpu_id))
-    return chat
-# ========================================
+#     vis_processor_cfg = cfg.datasets_cfg.cc_sbu_align.vis_processor.train
+#     vis_processor = registry.get_processor_class(vis_processor_cfg.name).from_config(vis_processor_cfg)
+#     chat = Chat(model, vis_processor, device='cuda:{}'.format(args.gpu_id))
+#     return chat
+# # ========================================
 
 # ========================================
 #             SAM Initialization
@@ -135,90 +135,90 @@ def init_sam(model_type = "vit_h", checkpoint="/home/t1/vikrant.dewangan/llm-bev
     return predictor
 # ========================================
 
-def reset_conv(model_name = "llava"):
-    if 'llama-2' in model_name.lower():
-        conv_mode = "llava_llama_2"
-    elif "v1" in model_name.lower():
-        conv_mode = "llava_v1"
-    elif "mpt" in model_name.lower():
-        conv_mode = "mpt"
-    else:
-        conv_mode = "llava_v0"
-    print('Initialization Finished')
+# def reset_conv(model_name = "llava"):
+#     if 'llama-2' in model_name.lower():
+#         conv_mode = "llava_llama_2"
+#     elif "v1" in model_name.lower():
+#         conv_mode = "llava_v1"
+#     elif "mpt" in model_name.lower():
+#         conv_mode = "mpt"
+#     else:
+#         conv_mode = "llava_v0"
+#     print('Initialization Finished')
 
-    conv = conv_templates[conv_mode].copy()
-    if "mpt" in model_name.lower():
-        roles = ('user', 'assistant')
-    else:
-        roles = conv.roles
-    return conv
+#     conv = conv_templates[conv_mode].copy()
+#     if "mpt" in model_name.lower():
+#         roles = ('user', 'assistant')
+#     else:
+#         roles = conv.roles
+#     return conv
 
-def llava_inference(model_llava, image_processor, tokenizer, conv, user_message, image, device="cuda"):
-  image_tensor = image_processor.preprocess(image, return_tensors='pt')['pixel_values'].half().to(device)
-  if model_llava.config.mm_use_im_start_end:
-      inp = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + '\n' + user_message
-  else:
-      inp = DEFAULT_IMAGE_TOKEN + '\n' + user_message
-  conv.append_message(conv.roles[0], inp)
-  prompt = conv.get_prompt()
-  input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).cuda()
-  stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
-  keywords = [stop_str]
-  stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
-  streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
-  output_ids = model_llava.generate(
-      input_ids,
-      images=image_tensor,
-      do_sample=True,
-      temperature=0.5,
-      max_new_tokens=1024,
-      streamer=streamer,
-      use_cache=True,
-      stopping_criteria=[stopping_criteria])
+# def llava_inference(model_llava, image_processor, tokenizer, conv, user_message, image, device="cuda"):
+#   image_tensor = image_processor.preprocess(image, return_tensors='pt')['pixel_values'].half().to(device)
+#   if model_llava.config.mm_use_im_start_end:
+#       inp = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + '\n' + user_message
+#   else:
+#       inp = DEFAULT_IMAGE_TOKEN + '\n' + user_message
+#   conv.append_message(conv.roles[0], inp)
+#   prompt = conv.get_prompt()
+#   input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).cuda()
+#   stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
+#   keywords = [stop_str]
+#   stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
+#   streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
+#   output_ids = model_llava.generate(
+#       input_ids,
+#       images=image_tensor,
+#       do_sample=True,
+#       temperature=0.5,
+#       max_new_tokens=1024,
+#       streamer=streamer,
+#       use_cache=True,
+#       stopping_criteria=[stopping_criteria])
 
-  outputs = tokenizer.decode(output_ids[0, input_ids.shape[1]:]).strip()
-  return outputs
+#   outputs = tokenizer.decode(output_ids[0, input_ids.shape[1]:]).strip()
+#   return outputs
 
-def miniGPT4_inference(chat, img_cropped, user_message):
-    img_list = []
-    chat_state = CONV_VISION.copy()  # Reset chat state to default template
-    llm_message = chat.upload_img(Image.fromarray(img_cropped), chat_state, img_list)
+# def miniGPT4_inference(chat, img_cropped, user_message):
+#     img_list = []
+#     chat_state = CONV_VISION.copy()  # Reset chat state to default template
+#     llm_message = chat.upload_img(Image.fromarray(img_cropped), chat_state, img_list)
 
-    print('Upload done')
+#     print('Upload done')
 
-    chat.ask(user_message, chat_state)
-    llm_message = chat.answer(
-            conv=chat_state,
-            img_list=img_list,
-            # num_beams=num_beams,
-            num_beams=1,
-            # temperature=temperature,
-            temperature=0.7,
-            max_new_tokens=300,
-            max_length=2000
-    )[0]
-    return llm_message
+#     chat.ask(user_message, chat_state)
+#     llm_message = chat.answer(
+#             conv=chat_state,
+#             img_list=img_list,
+#             # num_beams=num_beams,
+#             num_beams=1,
+#             # temperature=temperature,
+#             temperature=0.7,
+#             max_new_tokens=300,
+#             max_length=2000
+#     )[0]
+#     return llm_message
 
-def instructblip2_inference(img_cropped, vis_processors, device="cuda", user_message="describe the central object in the scene."):
-    image = vis_processors["eval"](Image.fromarray(img_cropped)).unsqueeze(0).to(device)
+# def instructblip2_inference(img_cropped, vis_processors, device="cuda", user_message="describe the central object in the scene."):
+#     image = vis_processors["eval"](Image.fromarray(img_cropped)).unsqueeze(0).to(device)
 
-    samples = {
-        "image": image,
-        "prompt": user_message,
-    }
+#     samples = {
+#         "image": image,
+#         "prompt": user_message,
+#     }
 
-    output_blip = model_instructblip.generate(
-        samples,
-        length_penalty=float(1),
-        repetition_penalty=float(1),
-        num_beams=5,
-        max_length=256,
-        min_length=1,
-        top_p=0.2,
-        use_nucleus_sampling=False,
-    )
+#     output_blip = model_instructblip.generate(
+#         samples,
+#         length_penalty=float(1),
+#         repetition_penalty=float(1),
+#         num_beams=5,
+#         max_length=256,
+#         min_length=1,
+#         top_p=0.2,
+#         use_nucleus_sampling=False,
+#     )
 
-    return output_blip[0]
+#     return output_blip[0]
 
 def find_bounding_box(image):
     # Find the coordinates of non-zero (foreground) pixels along each channel
@@ -351,7 +351,7 @@ data_path = "/raid/t1/scratch/vikrant.dewangan/v1.0-trainval"
 save_path = "/raid/t1/scratch/vikrant.dewangan/datas"
 
 # LLaVa
-tokenizer, model_llava, image_processor, context_len = init_llava()
+# tokenizer, model_llava, image_processor, context_len = init_llava()
 print("Initializaed LLaVa")
 
 # # InstructBLIP-2
@@ -394,7 +394,7 @@ def eval(checkpoint_path, dataroot):
 
     nusc = NuScenes(version='v1.0-{}'.format("trainval"), dataroot=data_path, verbose=False)
     valdata = FuturePredictionDataset(nusc, 0, cfg)
-    valdata.indices = valdata.indices[18030:]
+    valdata.indices = valdata.indices[3055:]
     valloader = torch.utils.data.DataLoader(
         valdata, batch_size=cfg.BATCHSIZE, shuffle=False, num_workers=0, pin_memory=True, drop_last=False
     )
@@ -404,6 +404,8 @@ def eval(checkpoint_path, dataroot):
         intrinsics = batch['intrinsics']
         extrinsics = batch['extrinsics']
         future_egomotion = batch['future_egomotion']
+
+        
 
 
         with torch.no_grad():
@@ -422,6 +424,8 @@ def eval(checkpoint_path, dataroot):
             barr = np.copy(arr)
             varr = np.copy(arr)
 
+            # import pdb; pdb.set_trace()
+
             labels_allowed = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
             pts = []
             lidardata = batch['point_clouds'][2].squeeze()[2].numpy()
@@ -435,7 +439,7 @@ def eval(checkpoint_path, dataroot):
             # front_ids = [9]
             # right_ids = [7, 8, 10]
 
-            interesting_cars = [7]
+            interesting_cars = []
             for idx in tqdm(range(1, labels)):
                 # Create a JSON object for each component                    
                 x, y = np.where(pts_ == idx)
@@ -525,14 +529,15 @@ def eval(checkpoint_path, dataroot):
                     continue
                 # Yes, the car is reversing and the rear park lights are on. This is indicated by the fact that the car is pulling into a parking space and the rear lights are illuminated. This is a common safety measure for drivers to ensure that other vehicles and pedestrians are aware of their presence and movements while reversing.
                 img_cropped, masks = extract_mask(predictor, cam_img, points)
+                # import pdb; pdb.set_trace()
                 matched_imgs.append(img_cropped)
                 cam_keys_mapping = {'CAM_FRONT_LEFT':0, 'CAM_FRONT':1, 'CAM_FRONT_RIGHT':2, 'CAM_BACK_LEFT':3, 'CAM_BACK':4, 'CAM_BACK_RIGHT':5}
-                user_message = "Given this image is of road scene, describe the central object in the image. Is the indicator on? Which direction is the indicator showing?"
-                conv = reset_conv()
-                llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
-                import pdb; pdb.set_trace()
-                obj['llm_message_llava'] = llm_message_llava
-                obj2['llm_message_llava'] = llm_message_llava
+                user_message = "Given this image is of road scene, describe the central object in the image. Is there any text on the object? Which language is it? Explain."
+                # conv = reset_conv()
+                # llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
+
+                # obj['llm_message_llava'] = llm_message_llava
+                # obj2['llm_message_llava'] = llm_message_llava
                 img = batch['unnormalized_images'][0,2,cam_keys_mapping[matched_cam]]
                 darr = np.copy(barr)
                 plt.imshow(img)
@@ -557,17 +562,18 @@ def eval(checkpoint_path, dataroot):
                             continue
                         img_cropped, masks = extract_mask(predictor, batch['unnormalized_images'][0,2,j].numpy(), matched_points)
                         idxs = (masks[-1].astype(np.uint8) * 200) > 0
-                        batch['unnormalized_images'][0,2,j].numpy()[idxs] = batch['unnormalized_images'][0,2,j].numpy()[idxs] + (np.array([255, 0, 0]) - batch['unnormalized_images'][0,2,j].numpy()[idxs]) * 0.5
+                        imgg = batch['unnormalized_images'][0,2,j].numpy()
+                        imgg[idxs] = imgg[idxs] + (np.array([255, 0, 0]) - imgg[idxs]) * 0.5
 
                 user_message = "Is the object facing towards or away from the camera? Reply in one word - towards or away."
-                conv = reset_conv()
-                llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
+                # conv = reset_conv()
+                # llm_message_llava = llava_inference(model_llava, image_processor, tokenizer, conv, user_message, img_cropped, device);
                 direction = 1
-                d1 = llm_message_llava.lower() == "towards"
+                # d1 = llm_message_llava.lower() == "towards"
                 d2 = np.mean(x) < 0
-                obj['travel_direction'] = {0:'same', 1: 'opposite'}[d1 ^ d2]
-                objects_json.append(obj)
-                objects_chatgpt_json.append(obj2)
+                # obj['travel_direction'] = {0:'same', 1: 'opposite'}[d1 ^ d2]
+                # objects_json.append(obj)
+                # objects_chatgpt_json.append(obj2)
 
             with open("answer_gt_shubham.json", "w") as f:
                 json.dump(objects_json, f, indent=4)
@@ -606,10 +612,9 @@ def eval(checkpoint_path, dataroot):
             ax5.axis('off')
 
             plt.tight_layout()
-            plt.savefig("6images_shubham.png", dpi=300)
+            plt.savefig("6images_anushka.png", dpi=300)
 
-            Image.fromarray(varr.astype(np.uint8)).save("arr_shubham.png")
-            import pdb;pdb.set_trace()
+            Image.fromarray(varr.astype(np.uint8)).save("arr_shubham2.png")
             print(" DONE SAVED \n\n")
             exit()
             break
